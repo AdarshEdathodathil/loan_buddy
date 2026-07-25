@@ -1,0 +1,110 @@
+import 'package:drift/drift.dart';
+import 'package:loan_buddy/core/database/app_database.dart';
+
+class LoanRepository {
+  final AppDatabase database;
+
+  LoanRepository(this.database);
+
+  Future<int> addLoan(LoansCompanion loan) {
+    return database.into(database.loans).insert(loan);
+  }
+
+  Future<List<Loan>> getLoans() {
+    return database.select(database.loans).get();
+  }
+
+  Stream<List<Loan>> watchLoans() {
+    return database.select(database.loans).watch();
+  }
+
+  Future<Loan?> getLoan(int id) {
+    return (database.select(
+      database.loans,
+    )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+  }
+
+  Future<void> updateLoan(Loan loan) {
+    return database.update(database.loans).replace(loan);
+  }
+
+  Future<int> deleteLoan(int id) {
+    return (database.delete(
+      database.loans,
+    )..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  Future<void> updateOutstandingBalance({
+    required int loanId,
+    required double paymentAmount,
+  }) async {
+    final loan = await getLoan(loanId);
+
+    if (loan == null) return;
+
+    double newOutstanding = loan.outstandingAmount - paymentAmount;
+
+    if (newOutstanding < 0) {
+      newOutstanding = 0;
+    }
+
+    final updatedLoan = loan.copyWith(
+      outstandingAmount: newOutstanding,
+      isClosed: newOutstanding == 0,
+    );
+
+    await updateLoan(updatedLoan);
+  }
+
+  /// -------------------------
+  /// PAYMENT METHODS
+  /// -------------------------
+
+  Future<int> addPayment(PaymentsCompanion payment) {
+    return database.into(database.payments).insert(payment);
+  }
+
+  Future<List<Payment>> getPayments(int loanId) {
+    return (database.select(database.payments)
+          ..where((tbl) => tbl.loanId.equals(loanId))
+          ..orderBy([
+            (tbl) => OrderingTerm(
+              expression: tbl.paymentDate,
+              mode: OrderingMode.desc,
+            ),
+          ]))
+        .get();
+  }
+
+  Stream<List<Payment>> watchPayments(int loanId) {
+    return (database.select(database.payments)
+          ..where((tbl) => tbl.loanId.equals(loanId))
+          ..orderBy([
+            (tbl) => OrderingTerm(
+              expression: tbl.paymentDate,
+              mode: OrderingMode.desc,
+            ),
+          ]))
+        .watch();
+  }
+
+  Future<void> markEmiPaid({
+    required int loanId,
+    required double amount,
+    String? remarks,
+  }) async {
+    await database.transaction(() async {
+      await addPayment(
+        PaymentsCompanion.insert(
+  loanId: loanId,
+  amount: amount,
+  paymentDate: DateTime.now(),
+  emiForMonth: DateTime.now(),
+  remarks: Value(remarks),
+),
+      );
+
+      await updateOutstandingBalance(loanId: loanId, paymentAmount: amount);
+    });
+  }
+}
