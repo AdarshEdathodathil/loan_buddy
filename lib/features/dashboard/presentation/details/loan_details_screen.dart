@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import 'package:loan_buddy/features/dashboard/providers/dashboard_provider.dart';
+import 'package:loan_buddy/features/loans/presentation/add_loan/add_loan_screen.dart';
 import 'package:loan_buddy/features/loans/providers/loan_details_provider.dart';
 import 'package:loan_buddy/features/loans/providers/loan_list_provider.dart';
+import 'package:loan_buddy/features/loans/providers/loan_provider.dart';
 import 'package:loan_buddy/features/payments/presentation/add_payment_dialog.dart';
 import 'package:loan_buddy/features/payments/providers/payment_controller.dart';
 import 'package:loan_buddy/features/payments/providers/payment_history_provider.dart';
+import 'package:loan_buddy/core/services/notification_service.dart';
 
 class LoanDetailsScreen extends ConsumerWidget {
   final int loanId;
@@ -15,22 +19,98 @@ class LoanDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loan = ref.watch(loanDetailsProvider(loanId));
+    final loanAsync = ref.watch(loanDetailsProvider(loanId));
     final payments = ref.watch(paymentHistoryProvider(loanId));
+
+    final repository = ref.read(loanRepositoryProvider);
 
     final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Loan Details')),
-      body: loan.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(e.toString())),
-        data: (loan) {
-          if (loan == null) {
-            return const Center(child: Text('Loan not found'));
-          }
+    return loanAsync.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
 
-          return ListView(
+      error: (e, _) => Scaffold(
+        appBar: AppBar(title: const Text("Loan Details")),
+        body: Center(child: Text(e.toString())),
+      ),
+
+      data: (loan) {
+        if (loan == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text("Loan Details")),
+            body: const Center(child: Text("Loan not found")),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text("Loan Details"),
+            actions: [
+              IconButton(
+                tooltip: "Edit Loan",
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddLoanScreen(loan: loan),
+                    ),
+                  );
+
+                  ref.invalidate(loanDetailsProvider(loan.id));
+                  ref.invalidate(loanListProvider);
+                  ref.invalidate(dashboardStatsProvider);
+                },
+              ),
+
+              IconButton(
+                tooltip: "Delete Loan",
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text("Delete Loan"),
+                      content: const Text(
+                        "This action will permanently delete the loan and all its payment history.\n\nDo you want to continue?",
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: const Text("Cancel"),
+                        ),
+                        FilledButton(
+                          onPressed: () {
+                            Navigator.pop(context, true);
+                          },
+                          child: const Text("Delete"),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm != true) return;
+
+                  await NotificationService.instance.cancelReminder(loan.id);
+
+                  await repository.deleteLoanWithPayments(loan.id);
+
+                  ref.invalidate(loanListProvider);
+                  ref.invalidate(dashboardStatsProvider);
+                  ref.invalidate(paymentHistoryProvider(loan.id));
+
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+            ],
+          ),
+
+          body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
               Text(loan.name, style: Theme.of(context).textTheme.headlineSmall),
@@ -59,15 +139,14 @@ class LoanDetailsScreen extends ConsumerWidget {
 
               ListTile(
                 title: const Text("Due Day"),
-                subtitle: Text("${loan.dueDay}"),
+                subtitle: Text(loan.dueDay.toString()),
               ),
 
               const SizedBox(height: 24),
 
               SizedBox(
-                width: double.infinity,
                 height: 50,
-                child: ElevatedButton.icon(
+                child: FilledButton.icon(
                   icon: const Icon(Icons.payments),
                   label: const Text("Pay EMI"),
                   onPressed: loan.isClosed
@@ -115,7 +194,6 @@ class LoanDetailsScreen extends ConsumerWidget {
               ),
 
               const SizedBox(height: 12),
-
               payments.when(
                 loading: () => const Center(
                   child: Padding(
@@ -123,12 +201,14 @@ class LoanDetailsScreen extends ConsumerWidget {
                     child: CircularProgressIndicator(),
                   ),
                 ),
+
                 error: (e, _) => Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(e.toString()),
                   ),
                 ),
+
                 data: (items) {
                   if (items.isEmpty) {
                     return const Card(
@@ -148,7 +228,18 @@ class LoanDetailsScreen extends ConsumerWidget {
                             child: Icon(Icons.payments),
                           ),
                           title: Text(currency.format(payment.amount)),
-                          subtitle: Text(payment.paymentType),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(payment.paymentType),
+                              if (payment.remarks != null &&
+                                  payment.remarks!.isNotEmpty)
+                                Text(
+                                  payment.remarks!,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                            ],
+                          ),
                           trailing: Text(
                             DateFormat(
                               'dd MMM yyyy',
@@ -161,9 +252,9 @@ class LoanDetailsScreen extends ConsumerWidget {
                 },
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

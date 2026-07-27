@@ -7,6 +7,7 @@ import 'package:loan_buddy/features/loans/presentation/add_loan/add_loan_screen.
 import 'package:loan_buddy/features/loans/providers/loan_list_provider.dart';
 import 'package:loan_buddy/widgets/summary_card.dart';
 import 'package:loan_buddy/core/notifications/notification_service.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -40,18 +41,19 @@ class DashboardScreen extends ConsumerWidget {
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                   ),
                   ElevatedButton(
-  onPressed: () {
-    NotificationService.instance.showTestNotification();
-  },
-  child: const Text("Test Notification"),
-),
+                    onPressed: () {
+                      NotificationService.instance.showTestNotification();
+                    },
+                    child: const Text("Test Notification"),
+                  ),
 
-ElevatedButton(
-  onPressed: () async {
-    await NotificationService.instance.scheduleTestNotification();
-  },
-  child: const Text("Schedule Notification"),
-),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await NotificationService.instance
+                          .scheduleTestNotification();
+                    },
+                    child: const Text("Schedule Notification"),
+                  ),
 
                   const SizedBox(height: 20),
 
@@ -61,18 +63,19 @@ ElevatedButton(
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 1.45,
+                    childAspectRatio: 1.05,
                     children: [
                       SummaryCard(
                         title: "Outstanding",
-                        value:
-                            "₹${dashboard.totalOutstanding.toStringAsFixed(0)}",
+                        value: CurrencyFormatter.compact(
+                          dashboard.totalOutstanding,
+                        ),
                         icon: Icons.account_balance_wallet,
                         color: Colors.red,
                       ),
                       SummaryCard(
                         title: "Monthly EMI",
-                        value: "₹${dashboard.totalEmi.toStringAsFixed(0)}",
+                        value: CurrencyFormatter.compact(dashboard.totalEmi),
                         icon: Icons.payments,
                         color: Colors.green,
                       ),

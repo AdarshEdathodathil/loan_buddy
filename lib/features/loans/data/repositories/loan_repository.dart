@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:loan_buddy/core/database/app_database.dart';
+import 'package:loan_buddy/core/services/notification_service.dart';
 
 class LoanRepository {
   final AppDatabase database;
@@ -24,8 +25,8 @@ class LoanRepository {
     )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
   }
 
-  Future<void> updateLoan(Loan loan) {
-    return database.update(database.loans).replace(loan);
+  Future<void> updateLoan(Loan loan) async {
+    await database.update(database.loans).replace(loan);
   }
 
   Future<int> deleteLoan(int id) {
@@ -54,6 +55,9 @@ class LoanRepository {
     );
 
     await updateLoan(updatedLoan);
+    if (newOutstanding == 0) {
+  await NotificationService.instance.cancelReminder(loanId);
+}
   }
 
   /// -------------------------
@@ -88,6 +92,18 @@ class LoanRepository {
         .watch();
   }
 
+  Future<void> deleteLoanWithPayments(int loanId) async {
+    await database.transaction(() async {
+      await (database.delete(
+        database.payments,
+      )..where((tbl) => tbl.loanId.equals(loanId))).go();
+
+      await (database.delete(
+        database.loans,
+      )..where((tbl) => tbl.id.equals(loanId))).go();
+    });
+  }
+
   Future<void> markEmiPaid({
     required int loanId,
     required double amount,
@@ -96,12 +112,12 @@ class LoanRepository {
     await database.transaction(() async {
       await addPayment(
         PaymentsCompanion.insert(
-  loanId: loanId,
-  amount: amount,
-  paymentDate: DateTime.now(),
-  emiForMonth: DateTime.now(),
-  remarks: Value(remarks),
-),
+          loanId: loanId,
+          amount: amount,
+          paymentDate: DateTime.now(),
+          emiForMonth: DateTime.now(),
+          remarks: Value(remarks),
+        ),
       );
 
       await updateOutstandingBalance(loanId: loanId, paymentAmount: amount);

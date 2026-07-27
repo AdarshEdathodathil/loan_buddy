@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:loan_buddy/core/database/app_database.dart';
 import '../state/add_loan_provider.dart';
 
 class ReviewStep extends ConsumerWidget {
-  const ReviewStep({super.key});
+  final Loan? loan;
+
+  const ReviewStep({super.key, this.loan});
+
+  bool get isEditing => loan != null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,13 +66,17 @@ class ReviewStep extends ConsumerWidget {
               Expanded(
                 child: FilledButton(
                   onPressed: () async {
-                    await notifier.saveLoan();
+                    if (isEditing) {
+                      await notifier.updateLoan(loan!);
+                    } else {
+                      await notifier.saveLoan();
+                    }
 
                     if (context.mounted) {
                       Navigator.pop(context);
                     }
                   },
-                  child: const Text("Save Loan"),
+                  child: Text(isEditing ? "Update Loan" : "Save Loan"),
                 ),
               ),
             ],
