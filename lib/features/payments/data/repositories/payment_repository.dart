@@ -58,6 +58,7 @@ class PaymentRepository {
             amount: amount,
             paymentDate: paymentDate,
             emiForMonth: paymentDate,
+            paymentType: Value(paymentType),
             remarks: Value(remarks),
           ),
         );

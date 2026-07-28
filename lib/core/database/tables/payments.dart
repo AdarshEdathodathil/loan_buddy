@@ -9,12 +9,18 @@ class Payments extends Table {
 
   DateTimeColumn get paymentDate => dateTime()();
 
+  /// Which EMI month this payment belongs to
   DateTimeColumn get emiForMonth => dateTime()();
 
+  /// EMI, Part Payment, Prepayment, etc.
   TextColumn get paymentType =>
       text().withDefault(const Constant('EMI'))();
 
-  TextColumn get remarks => text().nullable()();
+  TextColumn get remarks =>
+      text().nullable()();
+
+  BoolColumn get isEmi =>
+      boolean().withDefault(const Constant(true))();
 
   DateTimeColumn get createdAt =>
       dateTime().withDefault(currentDateAndTime)();

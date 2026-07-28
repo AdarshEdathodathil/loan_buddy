@@ -50,19 +50,22 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (migrator) async {
       await migrator.createAll();
     },
-
     onUpgrade: (migrator, from, to) async {
       if (from < 5) {
         await migrator.addColumn(loans, loans.reminderDaysBefore);
-
         await migrator.addColumn(loans, loans.reminderTime);
+      }
+
+      if (from < 7) {
+        await migrator.addColumn(payments, payments.emiForMonth);
+        await migrator.addColumn(payments, payments.paymentType);
       }
     },
   );

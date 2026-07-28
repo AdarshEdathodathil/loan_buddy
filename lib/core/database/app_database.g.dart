@@ -991,6 +991,19 @@ class $PaymentsTable extends Payments with TableInfo<$PaymentsTable, Payment> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isEmiMeta = const VerificationMeta('isEmi');
+  @override
+  late final GeneratedColumn<bool> isEmi = GeneratedColumn<bool>(
+    'is_emi',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_emi" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1012,6 +1025,7 @@ class $PaymentsTable extends Payments with TableInfo<$PaymentsTable, Payment> {
     emiForMonth,
     paymentType,
     remarks,
+    isEmi,
     createdAt,
   ];
   @override
@@ -1082,6 +1096,12 @@ class $PaymentsTable extends Payments with TableInfo<$PaymentsTable, Payment> {
         remarks.isAcceptableOrUnknown(data['remarks']!, _remarksMeta),
       );
     }
+    if (data.containsKey('is_emi')) {
+      context.handle(
+        _isEmiMeta,
+        isEmi.isAcceptableOrUnknown(data['is_emi']!, _isEmiMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1125,6 +1145,10 @@ class $PaymentsTable extends Payments with TableInfo<$PaymentsTable, Payment> {
         DriftSqlType.string,
         data['${effectivePrefix}remarks'],
       ),
+      isEmi: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_emi'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1143,9 +1167,14 @@ class Payment extends DataClass implements Insertable<Payment> {
   final int loanId;
   final double amount;
   final DateTime paymentDate;
+
+  /// Which EMI month this payment belongs to
   final DateTime emiForMonth;
+
+  /// EMI, Part Payment, Prepayment, etc.
   final String paymentType;
   final String? remarks;
+  final bool isEmi;
   final DateTime createdAt;
   const Payment({
     required this.id,
@@ -1155,6 +1184,7 @@ class Payment extends DataClass implements Insertable<Payment> {
     required this.emiForMonth,
     required this.paymentType,
     this.remarks,
+    required this.isEmi,
     required this.createdAt,
   });
   @override
@@ -1169,6 +1199,7 @@ class Payment extends DataClass implements Insertable<Payment> {
     if (!nullToAbsent || remarks != null) {
       map['remarks'] = Variable<String>(remarks);
     }
+    map['is_emi'] = Variable<bool>(isEmi);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -1184,6 +1215,7 @@ class Payment extends DataClass implements Insertable<Payment> {
       remarks: remarks == null && nullToAbsent
           ? const Value.absent()
           : Value(remarks),
+      isEmi: Value(isEmi),
       createdAt: Value(createdAt),
     );
   }
@@ -1201,6 +1233,7 @@ class Payment extends DataClass implements Insertable<Payment> {
       emiForMonth: serializer.fromJson<DateTime>(json['emiForMonth']),
       paymentType: serializer.fromJson<String>(json['paymentType']),
       remarks: serializer.fromJson<String?>(json['remarks']),
+      isEmi: serializer.fromJson<bool>(json['isEmi']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -1215,6 +1248,7 @@ class Payment extends DataClass implements Insertable<Payment> {
       'emiForMonth': serializer.toJson<DateTime>(emiForMonth),
       'paymentType': serializer.toJson<String>(paymentType),
       'remarks': serializer.toJson<String?>(remarks),
+      'isEmi': serializer.toJson<bool>(isEmi),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -1227,6 +1261,7 @@ class Payment extends DataClass implements Insertable<Payment> {
     DateTime? emiForMonth,
     String? paymentType,
     Value<String?> remarks = const Value.absent(),
+    bool? isEmi,
     DateTime? createdAt,
   }) => Payment(
     id: id ?? this.id,
@@ -1236,6 +1271,7 @@ class Payment extends DataClass implements Insertable<Payment> {
     emiForMonth: emiForMonth ?? this.emiForMonth,
     paymentType: paymentType ?? this.paymentType,
     remarks: remarks.present ? remarks.value : this.remarks,
+    isEmi: isEmi ?? this.isEmi,
     createdAt: createdAt ?? this.createdAt,
   );
   Payment copyWithCompanion(PaymentsCompanion data) {
@@ -1253,6 +1289,7 @@ class Payment extends DataClass implements Insertable<Payment> {
           ? data.paymentType.value
           : this.paymentType,
       remarks: data.remarks.present ? data.remarks.value : this.remarks,
+      isEmi: data.isEmi.present ? data.isEmi.value : this.isEmi,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -1267,6 +1304,7 @@ class Payment extends DataClass implements Insertable<Payment> {
           ..write('emiForMonth: $emiForMonth, ')
           ..write('paymentType: $paymentType, ')
           ..write('remarks: $remarks, ')
+          ..write('isEmi: $isEmi, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1281,6 +1319,7 @@ class Payment extends DataClass implements Insertable<Payment> {
     emiForMonth,
     paymentType,
     remarks,
+    isEmi,
     createdAt,
   );
   @override
@@ -1294,6 +1333,7 @@ class Payment extends DataClass implements Insertable<Payment> {
           other.emiForMonth == this.emiForMonth &&
           other.paymentType == this.paymentType &&
           other.remarks == this.remarks &&
+          other.isEmi == this.isEmi &&
           other.createdAt == this.createdAt);
 }
 
@@ -1305,6 +1345,7 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
   final Value<DateTime> emiForMonth;
   final Value<String> paymentType;
   final Value<String?> remarks;
+  final Value<bool> isEmi;
   final Value<DateTime> createdAt;
   const PaymentsCompanion({
     this.id = const Value.absent(),
@@ -1314,6 +1355,7 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
     this.emiForMonth = const Value.absent(),
     this.paymentType = const Value.absent(),
     this.remarks = const Value.absent(),
+    this.isEmi = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   PaymentsCompanion.insert({
@@ -1324,6 +1366,7 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
     required DateTime emiForMonth,
     this.paymentType = const Value.absent(),
     this.remarks = const Value.absent(),
+    this.isEmi = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : loanId = Value(loanId),
        amount = Value(amount),
@@ -1337,6 +1380,7 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
     Expression<DateTime>? emiForMonth,
     Expression<String>? paymentType,
     Expression<String>? remarks,
+    Expression<bool>? isEmi,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -1347,6 +1391,7 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
       if (emiForMonth != null) 'emi_for_month': emiForMonth,
       if (paymentType != null) 'payment_type': paymentType,
       if (remarks != null) 'remarks': remarks,
+      if (isEmi != null) 'is_emi': isEmi,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -1359,6 +1404,7 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
     Value<DateTime>? emiForMonth,
     Value<String>? paymentType,
     Value<String?>? remarks,
+    Value<bool>? isEmi,
     Value<DateTime>? createdAt,
   }) {
     return PaymentsCompanion(
@@ -1369,6 +1415,7 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
       emiForMonth: emiForMonth ?? this.emiForMonth,
       paymentType: paymentType ?? this.paymentType,
       remarks: remarks ?? this.remarks,
+      isEmi: isEmi ?? this.isEmi,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -1397,6 +1444,9 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
     if (remarks.present) {
       map['remarks'] = Variable<String>(remarks.value);
     }
+    if (isEmi.present) {
+      map['is_emi'] = Variable<bool>(isEmi.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1413,6 +1463,7 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
           ..write('emiForMonth: $emiForMonth, ')
           ..write('paymentType: $paymentType, ')
           ..write('remarks: $remarks, ')
+          ..write('isEmi: $isEmi, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1848,6 +1899,7 @@ typedef $$PaymentsTableCreateCompanionBuilder =
       required DateTime emiForMonth,
       Value<String> paymentType,
       Value<String?> remarks,
+      Value<bool> isEmi,
       Value<DateTime> createdAt,
     });
 typedef $$PaymentsTableUpdateCompanionBuilder =
@@ -1859,6 +1911,7 @@ typedef $$PaymentsTableUpdateCompanionBuilder =
       Value<DateTime> emiForMonth,
       Value<String> paymentType,
       Value<String?> remarks,
+      Value<bool> isEmi,
       Value<DateTime> createdAt,
     });
 
@@ -1903,6 +1956,11 @@ class $$PaymentsTableFilterComposer
 
   ColumnFilters<String> get remarks => $composableBuilder(
     column: $table.remarks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isEmi => $composableBuilder(
+    column: $table.isEmi,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1956,6 +2014,11 @@ class $$PaymentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isEmi => $composableBuilder(
+    column: $table.isEmi,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -1998,6 +2061,9 @@ class $$PaymentsTableAnnotationComposer
   GeneratedColumn<String> get remarks =>
       $composableBuilder(column: $table.remarks, builder: (column) => column);
 
+  GeneratedColumn<bool> get isEmi =>
+      $composableBuilder(column: $table.isEmi, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
@@ -2037,6 +2103,7 @@ class $$PaymentsTableTableManager
                 Value<DateTime> emiForMonth = const Value.absent(),
                 Value<String> paymentType = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),
+                Value<bool> isEmi = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => PaymentsCompanion(
                 id: id,
@@ -2046,6 +2113,7 @@ class $$PaymentsTableTableManager
                 emiForMonth: emiForMonth,
                 paymentType: paymentType,
                 remarks: remarks,
+                isEmi: isEmi,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -2057,6 +2125,7 @@ class $$PaymentsTableTableManager
                 required DateTime emiForMonth,
                 Value<String> paymentType = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),
+                Value<bool> isEmi = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => PaymentsCompanion.insert(
                 id: id,
@@ -2066,6 +2135,7 @@ class $$PaymentsTableTableManager
                 emiForMonth: emiForMonth,
                 paymentType: paymentType,
                 remarks: remarks,
+                isEmi: isEmi,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

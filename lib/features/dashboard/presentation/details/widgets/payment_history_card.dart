@@ -3,10 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:loan_buddy/core/database/app_database.dart';
 
 class PaymentHistoryCard extends StatelessWidget {
-  const PaymentHistoryCard({
-    super.key,
-    required this.payments,
-  });
+  const PaymentHistoryCard({super.key, required this.payments});
 
   final List<Payment> payments;
 
@@ -20,9 +17,7 @@ class PaymentHistoryCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -30,9 +25,9 @@ class PaymentHistoryCard extends StatelessWidget {
           children: [
             Text(
               "Payment History",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -54,8 +49,9 @@ class PaymentHistoryCard extends StatelessWidget {
                   child: Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
                         child: const Icon(Icons.payments),
                       ),
 
@@ -75,7 +71,10 @@ class PaymentHistoryCard extends StatelessWidget {
 
                             const SizedBox(height: 4),
 
-                            Text(payment.paymentType),
+                            Text(
+                              "EMI Payment",
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
 
                             if (payment.remarks != null &&
                                 payment.remarks!.isNotEmpty)
@@ -83,8 +82,7 @@ class PaymentHistoryCard extends StatelessWidget {
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
                                   payment.remarks!,
-                                  style:
-                                      Theme.of(context).textTheme.bodySmall,
+                                  style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ),
                           ],
@@ -92,9 +90,7 @@ class PaymentHistoryCard extends StatelessWidget {
                       ),
 
                       Text(
-                        DateFormat(
-                          'dd MMM yyyy',
-                        ).format(payment.paymentDate),
+                        DateFormat('dd MMM yyyy').format(payment.paymentDate),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
