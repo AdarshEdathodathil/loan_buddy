@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:loan_buddy/features/dashboard/presentation/details/loan_details_screen.dart';
 import 'package:loan_buddy/features/dashboard/providers/dashboard_provider.dart';
+import 'package:loan_buddy/features/dashboard/widgets/dashboard_header.dart';
+import 'package:loan_buddy/features/dashboard/widgets/empty_dashboard.dart';
+import 'package:loan_buddy/features/dashboard/widgets/loan_card.dart';
+import 'package:loan_buddy/features/dashboard/widgets/quick_actions.dart';
+import 'package:loan_buddy/features/dashboard/widgets/quick_stats_grid.dart';
 import 'package:loan_buddy/features/loans/presentation/add_loan/add_loan_screen.dart';
 import 'package:loan_buddy/features/loans/providers/loan_list_provider.dart';
-import 'package:loan_buddy/widgets/summary_card.dart';
-import 'package:loan_buddy/core/notifications/notification_service.dart';
-import 'package:loan_buddy/core/utils/currency_formatter.dart';
+import 'package:loan_buddy/features/dashboard/widgets/outstanding_card.dart';
+import 'package:loan_buddy/shared/widgets/section_title.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -18,7 +22,12 @@ class DashboardScreen extends ConsumerWidget {
     final stats = ref.watch(dashboardStatsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Loan Buddy")),
+      appBar: AppBar(
+        title: const Text("Loan Buddy"),
+        centerTitle: false,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
@@ -36,168 +45,81 @@ class DashboardScreen extends ConsumerWidget {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  const Text(
-                    "Good Morning 👋",
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      NotificationService.instance.showTestNotification();
-                    },
-                    child: const Text("Test Notification"),
-                  ),
-
-                  ElevatedButton(
-                    onPressed: () async {
-                      await NotificationService.instance
-                          .scheduleTestNotification();
-                    },
-                    child: const Text("Schedule Notification"),
-                  ),
+                  const DashboardHeader(),
 
                   const SizedBox(height: 20),
 
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.05,
-                    children: [
-                      SummaryCard(
-                        title: "Outstanding",
-                        value: CurrencyFormatter.compact(
-                          dashboard.totalOutstanding,
+                  OutstandingCard(
+                    borrowed: dashboard.totalBorrowed,
+                    outstanding: dashboard.totalOutstanding,
+                    paid: dashboard.totalBorrowed - dashboard.totalOutstanding,
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  const SizedBox(height: 20),
+
+                  QuickStatsGrid(
+                    activeLoans: dashboard.activeLoans,
+                    closedLoans: dashboard.closedLoans,
+                    totalLoans: dashboard.totalLoans,
+                    monthlyEmi: dashboard.totalEmi,
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  QuickActions(
+                    onAddLoan: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AddLoanScreen(),
                         ),
-                        icon: Icons.account_balance_wallet,
-                        color: Colors.red,
-                      ),
-                      SummaryCard(
-                        title: "Monthly EMI",
-                        value: CurrencyFormatter.compact(dashboard.totalEmi),
-                        icon: Icons.payments,
-                        color: Colors.green,
-                      ),
-                      SummaryCard(
-                        title: "Active Loans",
-                        value: dashboard.activeLoans.toString(),
-                        icon: Icons.credit_card,
-                        color: Colors.blue,
-                      ),
-                      SummaryCard(
-                        title: "Total Loans",
-                        value: items.length.toString(),
-                        icon: Icons.account_balance,
-                        color: Colors.deepPurple,
-                      ),
-                    ],
+                      );
+                    },
+                    onCalendar: () {},
+                    onAnalytics: () {},
+                    onSettings: () {},
                   ),
 
                   const SizedBox(height: 30),
 
-                  const Text(
-                    "My Loans",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  const SizedBox(height: 30),
+
+                  SectionTitle(
+                    title: "My Loans",
+                    trailing: TextButton(
+                      onPressed: () {},
+                      child: const Text("See All"),
+                    ),
                   ),
 
                   const SizedBox(height: 12),
 
                   if (items.isEmpty)
-                    const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(30),
-                        child: Center(
-                          child: Text(
-                            "No loans added yet",
-                            style: TextStyle(fontSize: 16),
+                    EmptyDashboard(
+                      onAddLoan: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AddLoanScreen(),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     )
                   else
                     ...items.map(
-                      (loan) => Card(
-                        margin: const EdgeInsets.only(bottom: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    LoanDetailsScreen(loanId: loan.id),
-                              ),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  loan.name,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 4),
-
-                                Text(
-                                  loan.lender,
-                                  style: TextStyle(color: Colors.grey.shade600),
-                                ),
-
-                                const SizedBox(height: 16),
-
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Outstanding"),
-                                    Text(
-                                      "₹${loan.outstandingAmount.toStringAsFixed(0)}",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 8),
-
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Monthly EMI"),
-                                    Text(
-                                      "₹${loan.emiAmount.toStringAsFixed(0)}",
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 12),
-
-                                LinearProgressIndicator(
-                                  value: loan.totalAmount == 0
-                                      ? 0
-                                      : ((loan.totalAmount -
-                                                    loan.outstandingAmount) /
-                                                loan.totalAmount)
-                                            .clamp(0.0, 1.0),
-                                  minHeight: 8,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ],
+                      (loan) => LoanCard(
+                        loan: loan,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  LoanDetailsScreen(loanId: loan.id),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     ),
                 ],

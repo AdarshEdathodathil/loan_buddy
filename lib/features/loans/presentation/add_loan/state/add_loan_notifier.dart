@@ -9,8 +9,10 @@ import 'add_loan_state.dart';
 
 class AddLoanNotifier extends StateNotifier<AddLoanState> {
   final LoanRepository repository;
+  
 
   AddLoanNotifier(this.repository) : super(const AddLoanState());
+
 
   void nextStep() {
     state = state.copyWith(currentStep: state.currentStep + 1);
@@ -100,11 +102,13 @@ class AddLoanNotifier extends StateNotifier<AddLoanState> {
     final loanId = await repository.addLoan(loan);
 
     await NotificationService.instance.scheduleMonthlyReminder(
-      id: loanId,
-      loanName: state.loanName,
-      emiAmount: state.emiAmount,
-      dueDay: state.dueDay,
-    );
+  id: loanId,
+  loanName: state.loanName,
+  emiAmount: state.emiAmount,
+  dueDay: state.dueDay,
+  reminderDaysBefore: 1,
+  reminderTime: "09:00",
+);
   }
 
   Future<void> updateLoan(Loan existingLoan) async {
@@ -125,11 +129,13 @@ class AddLoanNotifier extends StateNotifier<AddLoanState> {
     await repository.updateLoan(updatedLoan);
     await NotificationService.instance.cancelReminder(existingLoan.id);
 
-    await NotificationService.instance.scheduleMonthlyReminder(
-      id: existingLoan.id,
-      loanName: state.loanName,
-      emiAmount: state.emiAmount,
-      dueDay: state.dueDay,
-    );
+   await NotificationService.instance.scheduleMonthlyReminder(
+  id: existingLoan.id,
+  loanName: state.loanName,
+  emiAmount: state.emiAmount,
+  dueDay: state.dueDay,
+  reminderDaysBefore: 1,
+  reminderTime: "09:00",
+);
   }
 }

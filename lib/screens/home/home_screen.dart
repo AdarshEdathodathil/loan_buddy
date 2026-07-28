@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:loan_buddy/features/analytics/presentation/analytics_screen.dart';
 
 import 'package:loan_buddy/features/dashboard/presentation/dashboard_screen.dart';
 import '../loans/loans_screen.dart';
 import '../calendar/calendar_screen.dart';
-import '../reports/reports_screen.dart';
 import '../settings/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
     DashboardScreen(),
     LoansScreen(),
     CalendarScreen(),
-    ReportsScreen(),
+    AnalyticsScreen(),
     SettingsScreen(),
   ];
 
@@ -52,9 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Calendar',
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Reports',
+            icon: Icon(Icons.analytics_outlined),
+            selectedIcon: Icon(Icons.analytics),
+            label: 'Analytics',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),

@@ -37,37 +37,42 @@ class Loans extends Table {
   BoolColumn get reminderEnabled =>
       boolean().withDefault(const Constant(true))();
 
-  BoolColumn get isClosed =>
-      boolean().withDefault(const Constant(false))();
+  IntColumn get reminderDaysBefore =>
+      integer().withDefault(const Constant(1))();
+
+  TextColumn get reminderTime => text().withDefault(const Constant("09:00"))();
+
+  BoolColumn get isClosed => boolean().withDefault(const Constant(false))();
 }
 
-@DriftDatabase(
-  tables: [
-    Loans,
-    Payments,
-  ],
-)
+@DriftDatabase(tables: [Loans, Payments])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (migrator) async {
-          await migrator.createAll();
-        },
-      );
+    onCreate: (migrator) async {
+      await migrator.createAll();
+    },
+
+    onUpgrade: (migrator, from, to) async {
+      if (from < 5) {
+        await migrator.addColumn(loans, loans.reminderDaysBefore);
+
+        await migrator.addColumn(loans, loans.reminderTime);
+      }
+    },
+  );
 }
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dir = await getApplicationDocumentsDirectory();
 
-    final file = File(
-      p.join(dir.path, 'loan_buddy.sqlite'),
-    );
+    final file = File(p.join(dir.path, 'loan_buddy.sqlite'));
 
     return NativeDatabase(file);
   });

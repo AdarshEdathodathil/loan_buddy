@@ -19,6 +19,10 @@ class AddLoanState {
 
   final String notes;
 
+  final bool reminderEnabled;
+  final int reminderDaysBefore;
+  final String reminderTime;
+
   const AddLoanState({
     this.currentStep = 0,
     this.loanName = '',
@@ -32,6 +36,9 @@ class AddLoanState {
     this.startDate,
     this.endDate,
     this.notes = '',
+    this.reminderEnabled = true,
+    this.reminderDaysBefore = 1,
+    this.reminderTime = '09:00',
   });
 
   AddLoanState copyWith({
@@ -47,6 +54,9 @@ class AddLoanState {
     DateTime? startDate,
     DateTime? endDate,
     String? notes,
+    bool? reminderEnabled,
+    int? reminderDaysBefore,
+    String? reminderTime,
   }) {
     return AddLoanState(
       currentStep: currentStep ?? this.currentStep,
@@ -54,14 +64,18 @@ class AddLoanState {
       lender: lender ?? this.lender,
       loanType: loanType ?? this.loanType,
       totalAmount: totalAmount ?? this.totalAmount,
-      outstandingAmount:
-          outstandingAmount ?? this.outstandingAmount,
+      outstandingAmount: outstandingAmount ?? this.outstandingAmount,
       interestRate: interestRate ?? this.interestRate,
       emiAmount: emiAmount ?? this.emiAmount,
       dueDay: dueDay ?? this.dueDay,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       notes: notes ?? this.notes,
+      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+
+      reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
+
+      reminderTime: reminderTime ?? this.reminderTime,
     );
   }
 }

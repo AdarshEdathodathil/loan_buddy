@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-
 import 'package:loan_buddy/features/dashboard/providers/dashboard_provider.dart';
 import 'package:loan_buddy/features/loans/presentation/add_loan/add_loan_screen.dart';
 import 'package:loan_buddy/features/loans/providers/loan_details_provider.dart';
@@ -11,6 +9,11 @@ import 'package:loan_buddy/features/payments/presentation/add_payment_dialog.dar
 import 'package:loan_buddy/features/payments/providers/payment_controller.dart';
 import 'package:loan_buddy/features/payments/providers/payment_history_provider.dart';
 import 'package:loan_buddy/core/services/notification_service.dart';
+import 'package:loan_buddy/features/dashboard/presentation/details/widgets/loan_header.dart';
+import 'package:loan_buddy/features/dashboard/presentation/details/widgets/loan_summary_card.dart';
+import 'package:loan_buddy/features/dashboard/presentation/details/widgets/repayment_progress_card.dart';
+import 'package:loan_buddy/features/dashboard/presentation/details/widgets/payment_history_card.dart';
+import 'package:loan_buddy/features/dashboard/presentation/details/widgets/emi_timeline_card.dart';
 
 class LoanDetailsScreen extends ConsumerWidget {
   final int loanId;
@@ -24,7 +27,6 @@ class LoanDetailsScreen extends ConsumerWidget {
 
     final repository = ref.read(loanRepositoryProvider);
 
-    final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
 
     return loanAsync.when(
       loading: () =>
@@ -113,34 +115,26 @@ class LoanDetailsScreen extends ConsumerWidget {
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              Text(loan.name, style: Theme.of(context).textTheme.headlineSmall),
+              LoanHeader(loan: loan),
 
+              const SizedBox(height: 20),
+
+              LoanSummaryCard(loan: loan),
+
+              const SizedBox(height: 20),
+
+              RepaymentProgressCard(
+                borrowed: loan.totalAmount,
+                outstanding: loan.outstandingAmount,
+              ),
+
+              const SizedBox(height: 20),
+
+              // Existing Pay EMI button
+              const SizedBox(height: 20),
+
+              // PaymentHistoryCard(payments: payments),
               const SizedBox(height: 16),
-
-              ListTile(
-                title: const Text("Lender"),
-                subtitle: Text(loan.lender),
-              ),
-
-              ListTile(
-                title: const Text("Outstanding"),
-                subtitle: Text(currency.format(loan.outstandingAmount)),
-              ),
-
-              ListTile(
-                title: const Text("Monthly EMI"),
-                subtitle: Text(currency.format(loan.emiAmount)),
-              ),
-
-              ListTile(
-                title: const Text("Interest"),
-                subtitle: Text("${loan.interestRate}%"),
-              ),
-
-              ListTile(
-                title: const Text("Due Day"),
-                subtitle: Text(loan.dueDay.toString()),
-              ),
 
               const SizedBox(height: 24),
 
@@ -188,69 +182,26 @@ class LoanDetailsScreen extends ConsumerWidget {
 
               const SizedBox(height: 30),
 
-              const Text(
-                "Payment History",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 12),
               payments.when(
-                loading: () => const Center(
+                loading: () => const Card(
                   child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: CircularProgressIndicator(),
+                    padding: EdgeInsets.all(30),
+                    child: Center(child: CircularProgressIndicator()),
                   ),
                 ),
 
                 error: (e, _) => Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
                     child: Text(e.toString()),
                   ),
                 ),
 
-                data: (items) {
-                  if (items.isEmpty) {
-                    return const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Center(child: Text("No payments recorded yet")),
-                      ),
-                    );
-                  }
-
-                  return Column(
-                    children: items.map((payment) {
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: ListTile(
-                          leading: const CircleAvatar(
-                            child: Icon(Icons.payments),
-                          ),
-                          title: Text(currency.format(payment.amount)),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(payment.paymentType),
-                              if (payment.remarks != null &&
-                                  payment.remarks!.isNotEmpty)
-                                Text(
-                                  payment.remarks!,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                            ],
-                          ),
-                          trailing: Text(
-                            DateFormat(
-                              'dd MMM yyyy',
-                            ).format(payment.paymentDate),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
+                data: (items) => PaymentHistoryCard(payments: items),
               ),
+              const SizedBox(height: 20),
+
+              EmiTimelineCard(loan: loan),
             ],
           ),
         );

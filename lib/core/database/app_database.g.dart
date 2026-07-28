@@ -150,6 +150,29 @@ class $LoansTable extends Loans with TableInfo<$LoansTable, Loan> {
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _reminderDaysBeforeMeta =
+      const VerificationMeta('reminderDaysBefore');
+  @override
+  late final GeneratedColumn<int> reminderDaysBefore = GeneratedColumn<int>(
+    'reminder_days_before',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _reminderTimeMeta = const VerificationMeta(
+    'reminderTime',
+  );
+  @override
+  late final GeneratedColumn<String> reminderTime = GeneratedColumn<String>(
+    'reminder_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant("09:00"),
+  );
   static const VerificationMeta _isClosedMeta = const VerificationMeta(
     'isClosed',
   );
@@ -180,6 +203,8 @@ class $LoansTable extends Loans with TableInfo<$LoansTable, Loan> {
     endDate,
     notes,
     reminderEnabled,
+    reminderDaysBefore,
+    reminderTime,
     isClosed,
   ];
   @override
@@ -301,6 +326,24 @@ class $LoansTable extends Loans with TableInfo<$LoansTable, Loan> {
         ),
       );
     }
+    if (data.containsKey('reminder_days_before')) {
+      context.handle(
+        _reminderDaysBeforeMeta,
+        reminderDaysBefore.isAcceptableOrUnknown(
+          data['reminder_days_before']!,
+          _reminderDaysBeforeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_time')) {
+      context.handle(
+        _reminderTimeMeta,
+        reminderTime.isAcceptableOrUnknown(
+          data['reminder_time']!,
+          _reminderTimeMeta,
+        ),
+      );
+    }
     if (data.containsKey('is_closed')) {
       context.handle(
         _isClosedMeta,
@@ -368,6 +411,14 @@ class $LoansTable extends Loans with TableInfo<$LoansTable, Loan> {
         DriftSqlType.bool,
         data['${effectivePrefix}reminder_enabled'],
       )!,
+      reminderDaysBefore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_days_before'],
+      )!,
+      reminderTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_time'],
+      )!,
       isClosed: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_closed'],
@@ -395,6 +446,8 @@ class Loan extends DataClass implements Insertable<Loan> {
   final DateTime endDate;
   final String? notes;
   final bool reminderEnabled;
+  final int reminderDaysBefore;
+  final String reminderTime;
   final bool isClosed;
   const Loan({
     required this.id,
@@ -410,6 +463,8 @@ class Loan extends DataClass implements Insertable<Loan> {
     required this.endDate,
     this.notes,
     required this.reminderEnabled,
+    required this.reminderDaysBefore,
+    required this.reminderTime,
     required this.isClosed,
   });
   @override
@@ -430,6 +485,8 @@ class Loan extends DataClass implements Insertable<Loan> {
       map['notes'] = Variable<String>(notes);
     }
     map['reminder_enabled'] = Variable<bool>(reminderEnabled);
+    map['reminder_days_before'] = Variable<int>(reminderDaysBefore);
+    map['reminder_time'] = Variable<String>(reminderTime);
     map['is_closed'] = Variable<bool>(isClosed);
     return map;
   }
@@ -451,6 +508,8 @@ class Loan extends DataClass implements Insertable<Loan> {
           ? const Value.absent()
           : Value(notes),
       reminderEnabled: Value(reminderEnabled),
+      reminderDaysBefore: Value(reminderDaysBefore),
+      reminderTime: Value(reminderTime),
       isClosed: Value(isClosed),
     );
   }
@@ -474,6 +533,8 @@ class Loan extends DataClass implements Insertable<Loan> {
       endDate: serializer.fromJson<DateTime>(json['endDate']),
       notes: serializer.fromJson<String?>(json['notes']),
       reminderEnabled: serializer.fromJson<bool>(json['reminderEnabled']),
+      reminderDaysBefore: serializer.fromJson<int>(json['reminderDaysBefore']),
+      reminderTime: serializer.fromJson<String>(json['reminderTime']),
       isClosed: serializer.fromJson<bool>(json['isClosed']),
     );
   }
@@ -494,6 +555,8 @@ class Loan extends DataClass implements Insertable<Loan> {
       'endDate': serializer.toJson<DateTime>(endDate),
       'notes': serializer.toJson<String?>(notes),
       'reminderEnabled': serializer.toJson<bool>(reminderEnabled),
+      'reminderDaysBefore': serializer.toJson<int>(reminderDaysBefore),
+      'reminderTime': serializer.toJson<String>(reminderTime),
       'isClosed': serializer.toJson<bool>(isClosed),
     };
   }
@@ -512,6 +575,8 @@ class Loan extends DataClass implements Insertable<Loan> {
     DateTime? endDate,
     Value<String?> notes = const Value.absent(),
     bool? reminderEnabled,
+    int? reminderDaysBefore,
+    String? reminderTime,
     bool? isClosed,
   }) => Loan(
     id: id ?? this.id,
@@ -527,6 +592,8 @@ class Loan extends DataClass implements Insertable<Loan> {
     endDate: endDate ?? this.endDate,
     notes: notes.present ? notes.value : this.notes,
     reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+    reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
+    reminderTime: reminderTime ?? this.reminderTime,
     isClosed: isClosed ?? this.isClosed,
   );
   Loan copyWithCompanion(LoansCompanion data) {
@@ -552,6 +619,12 @@ class Loan extends DataClass implements Insertable<Loan> {
       reminderEnabled: data.reminderEnabled.present
           ? data.reminderEnabled.value
           : this.reminderEnabled,
+      reminderDaysBefore: data.reminderDaysBefore.present
+          ? data.reminderDaysBefore.value
+          : this.reminderDaysBefore,
+      reminderTime: data.reminderTime.present
+          ? data.reminderTime.value
+          : this.reminderTime,
       isClosed: data.isClosed.present ? data.isClosed.value : this.isClosed,
     );
   }
@@ -572,6 +645,8 @@ class Loan extends DataClass implements Insertable<Loan> {
           ..write('endDate: $endDate, ')
           ..write('notes: $notes, ')
           ..write('reminderEnabled: $reminderEnabled, ')
+          ..write('reminderDaysBefore: $reminderDaysBefore, ')
+          ..write('reminderTime: $reminderTime, ')
           ..write('isClosed: $isClosed')
           ..write(')'))
         .toString();
@@ -592,6 +667,8 @@ class Loan extends DataClass implements Insertable<Loan> {
     endDate,
     notes,
     reminderEnabled,
+    reminderDaysBefore,
+    reminderTime,
     isClosed,
   );
   @override
@@ -611,6 +688,8 @@ class Loan extends DataClass implements Insertable<Loan> {
           other.endDate == this.endDate &&
           other.notes == this.notes &&
           other.reminderEnabled == this.reminderEnabled &&
+          other.reminderDaysBefore == this.reminderDaysBefore &&
+          other.reminderTime == this.reminderTime &&
           other.isClosed == this.isClosed);
 }
 
@@ -628,6 +707,8 @@ class LoansCompanion extends UpdateCompanion<Loan> {
   final Value<DateTime> endDate;
   final Value<String?> notes;
   final Value<bool> reminderEnabled;
+  final Value<int> reminderDaysBefore;
+  final Value<String> reminderTime;
   final Value<bool> isClosed;
   const LoansCompanion({
     this.id = const Value.absent(),
@@ -643,6 +724,8 @@ class LoansCompanion extends UpdateCompanion<Loan> {
     this.endDate = const Value.absent(),
     this.notes = const Value.absent(),
     this.reminderEnabled = const Value.absent(),
+    this.reminderDaysBefore = const Value.absent(),
+    this.reminderTime = const Value.absent(),
     this.isClosed = const Value.absent(),
   });
   LoansCompanion.insert({
@@ -659,6 +742,8 @@ class LoansCompanion extends UpdateCompanion<Loan> {
     required DateTime endDate,
     this.notes = const Value.absent(),
     this.reminderEnabled = const Value.absent(),
+    this.reminderDaysBefore = const Value.absent(),
+    this.reminderTime = const Value.absent(),
     this.isClosed = const Value.absent(),
   }) : name = Value(name),
        lender = Value(lender),
@@ -684,6 +769,8 @@ class LoansCompanion extends UpdateCompanion<Loan> {
     Expression<DateTime>? endDate,
     Expression<String>? notes,
     Expression<bool>? reminderEnabled,
+    Expression<int>? reminderDaysBefore,
+    Expression<String>? reminderTime,
     Expression<bool>? isClosed,
   }) {
     return RawValuesInsertable({
@@ -700,6 +787,9 @@ class LoansCompanion extends UpdateCompanion<Loan> {
       if (endDate != null) 'end_date': endDate,
       if (notes != null) 'notes': notes,
       if (reminderEnabled != null) 'reminder_enabled': reminderEnabled,
+      if (reminderDaysBefore != null)
+        'reminder_days_before': reminderDaysBefore,
+      if (reminderTime != null) 'reminder_time': reminderTime,
       if (isClosed != null) 'is_closed': isClosed,
     });
   }
@@ -718,6 +808,8 @@ class LoansCompanion extends UpdateCompanion<Loan> {
     Value<DateTime>? endDate,
     Value<String?>? notes,
     Value<bool>? reminderEnabled,
+    Value<int>? reminderDaysBefore,
+    Value<String>? reminderTime,
     Value<bool>? isClosed,
   }) {
     return LoansCompanion(
@@ -734,6 +826,8 @@ class LoansCompanion extends UpdateCompanion<Loan> {
       endDate: endDate ?? this.endDate,
       notes: notes ?? this.notes,
       reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+      reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
+      reminderTime: reminderTime ?? this.reminderTime,
       isClosed: isClosed ?? this.isClosed,
     );
   }
@@ -780,6 +874,12 @@ class LoansCompanion extends UpdateCompanion<Loan> {
     if (reminderEnabled.present) {
       map['reminder_enabled'] = Variable<bool>(reminderEnabled.value);
     }
+    if (reminderDaysBefore.present) {
+      map['reminder_days_before'] = Variable<int>(reminderDaysBefore.value);
+    }
+    if (reminderTime.present) {
+      map['reminder_time'] = Variable<String>(reminderTime.value);
+    }
     if (isClosed.present) {
       map['is_closed'] = Variable<bool>(isClosed.value);
     }
@@ -802,6 +902,8 @@ class LoansCompanion extends UpdateCompanion<Loan> {
           ..write('endDate: $endDate, ')
           ..write('notes: $notes, ')
           ..write('reminderEnabled: $reminderEnabled, ')
+          ..write('reminderDaysBefore: $reminderDaysBefore, ')
+          ..write('reminderTime: $reminderTime, ')
           ..write('isClosed: $isClosed')
           ..write(')'))
         .toString();
@@ -1344,6 +1446,8 @@ typedef $$LoansTableCreateCompanionBuilder =
       required DateTime endDate,
       Value<String?> notes,
       Value<bool> reminderEnabled,
+      Value<int> reminderDaysBefore,
+      Value<String> reminderTime,
       Value<bool> isClosed,
     });
 typedef $$LoansTableUpdateCompanionBuilder =
@@ -1361,6 +1465,8 @@ typedef $$LoansTableUpdateCompanionBuilder =
       Value<DateTime> endDate,
       Value<String?> notes,
       Value<bool> reminderEnabled,
+      Value<int> reminderDaysBefore,
+      Value<String> reminderTime,
       Value<bool> isClosed,
     });
 
@@ -1434,6 +1540,16 @@ class $$LoansTableFilterComposer extends Composer<_$AppDatabase, $LoansTable> {
 
   ColumnFilters<bool> get reminderEnabled => $composableBuilder(
     column: $table.reminderEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderDaysBefore => $composableBuilder(
+    column: $table.reminderDaysBefore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderTime => $composableBuilder(
+    column: $table.reminderTime,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1517,6 +1633,16 @@ class $$LoansTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get reminderDaysBefore => $composableBuilder(
+    column: $table.reminderDaysBefore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reminderTime => $composableBuilder(
+    column: $table.reminderTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isClosed => $composableBuilder(
     column: $table.isClosed,
     builder: (column) => ColumnOrderings(column),
@@ -1579,6 +1705,16 @@ class $$LoansTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get reminderDaysBefore => $composableBuilder(
+    column: $table.reminderDaysBefore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderTime => $composableBuilder(
+    column: $table.reminderTime,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get isClosed =>
       $composableBuilder(column: $table.isClosed, builder: (column) => column);
 }
@@ -1624,6 +1760,8 @@ class $$LoansTableTableManager
                 Value<DateTime> endDate = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<bool> reminderEnabled = const Value.absent(),
+                Value<int> reminderDaysBefore = const Value.absent(),
+                Value<String> reminderTime = const Value.absent(),
                 Value<bool> isClosed = const Value.absent(),
               }) => LoansCompanion(
                 id: id,
@@ -1639,6 +1777,8 @@ class $$LoansTableTableManager
                 endDate: endDate,
                 notes: notes,
                 reminderEnabled: reminderEnabled,
+                reminderDaysBefore: reminderDaysBefore,
+                reminderTime: reminderTime,
                 isClosed: isClosed,
               ),
           createCompanionCallback:
@@ -1656,6 +1796,8 @@ class $$LoansTableTableManager
                 required DateTime endDate,
                 Value<String?> notes = const Value.absent(),
                 Value<bool> reminderEnabled = const Value.absent(),
+                Value<int> reminderDaysBefore = const Value.absent(),
+                Value<String> reminderTime = const Value.absent(),
                 Value<bool> isClosed = const Value.absent(),
               }) => LoansCompanion.insert(
                 id: id,
@@ -1671,6 +1813,8 @@ class $$LoansTableTableManager
                 endDate: endDate,
                 notes: notes,
                 reminderEnabled: reminderEnabled,
+                reminderDaysBefore: reminderDaysBefore,
+                reminderTime: reminderTime,
                 isClosed: isClosed,
               ),
           withReferenceMapper: (p0) => p0
