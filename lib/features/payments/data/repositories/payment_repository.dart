@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
+import 'package:loan_buddy/core/constants/payment_type.dart';
 import 'package:loan_buddy/core/database/app_database.dart';
+import 'package:loan_buddy/core/services/notification_service.dart';
 import 'package:loan_buddy/features/analytics/models/monthly_emi_data.dart';
 import 'package:intl/intl.dart';
 
@@ -43,26 +45,130 @@ class PaymentRepository {
     }).toList();
   }
 
-  Future<void> addPayment({
-    required int loanId,
-    required double amount,
-    required DateTime paymentDate,
-    String paymentType = 'EMI',
-    String? remarks,
-  }) async {
-    await db
-        .into(db.payments)
-        .insert(
-          PaymentsCompanion.insert(
-            loanId: loanId,
-            amount: amount,
-            paymentDate: paymentDate,
-            emiForMonth: paymentDate,
-            paymentType: Value(paymentType),
-            remarks: Value(remarks),
-          ),
-        );
+  Future<DateTime> getNextUnpaidEmiMonth(int loanId) async {
+  final loan = await (db.select(db.loans)
+        ..where((l) => l.id.equals(loanId)))
+      .getSingle();
+
+  final payments = await (db.select(db.payments)
+      ..where((p) => p.loanId.equals(loanId)))
+    .get();
+
+final paidMonths = payments
+    .map((p) => '${p.emiForMonth.year}-${p.emiForMonth.month}')
+    .toSet();
+
+  var current = DateTime(
+    loan.startDate.year,
+    loan.startDate.month,
+  );
+
+  final end = DateTime(
+    loan.endDate.year,
+    loan.endDate.month,
+  );
+
+  while (!current.isAfter(end)) {
+    final key = '${current.year}-${current.month}';
+
+    if (!paidMonths.contains(key)) {
+      return current;
+    }
+
+    current = DateTime(current.year, current.month + 1);
   }
+
+  return end;
+}
+
+  Future<void> addPayment({
+  required int loanId,
+  required double amount,
+  required DateTime paymentDate,
+  String paymentType = PaymentType.emi,
+  String? remarks,
+}) async {
+  final emiMonth = await getNextUnpaidEmiMonth(loanId);
+
+  await db.into(db.payments).insert(
+    PaymentsCompanion.insert(
+      loanId: loanId,
+      amount: amount,
+      paymentDate: paymentDate,
+      emiForMonth: emiMonth,
+      paymentType: Value(paymentType),
+      remarks: Value(remarks),
+    ),
+  );
+}
+
+Future<void> makePayment({
+  required int loanId,
+  required double amount,
+  required DateTime paymentDate,
+  required String paymentType,
+  String? remarks,
+}) async {
+  await db.transaction(() async {
+    final loan = await (db.select(db.loans)
+          ..where((l) => l.id.equals(loanId)))
+        .getSingle();
+
+    if (loan.isClosed) {
+      throw Exception('Cannot make a payment on a closed loan.');
+    }
+
+    double paymentAmount = amount;
+
+    switch (paymentType) {
+      case PaymentType.emi:
+        // EMI payment
+        break;
+
+      case PaymentType.partPayment:
+        // Partial prepayment
+        break;
+
+      case PaymentType.foreclosure:
+        // Loan foreclosure
+        paymentAmount = loan.outstandingAmount;
+        break;
+
+      default:
+        throw Exception('Unknown payment type');
+    }
+
+    final emiMonth = await getNextUnpaidEmiMonth(loanId);
+
+    await db.into(db.payments).insert(
+      PaymentsCompanion.insert(
+        loanId: loanId,
+        amount: paymentAmount,
+        paymentDate: paymentDate,
+        emiForMonth: emiMonth,
+        paymentType: Value(paymentType),
+        remarks: Value(remarks),
+      ),
+    );
+
+    final outstanding =
+    (loan.outstandingAmount - paymentAmount)
+        .clamp(0.0, double.infinity);
+
+    final isClosed = outstanding == 0;
+
+    await (db.update(db.loans)..where((l) => l.id.equals(loanId))).write(
+      LoansCompanion(
+        outstandingAmount: Value(outstanding),
+        isClosed: Value(isClosed),
+      ),
+    );
+
+    if (isClosed) {
+      await NotificationService.instance.cancelReminder(loanId);
+    }
+  });
+}
 
   Stream<List<Payment>> watchPayments(int loanId) {
     return (db.select(db.payments)

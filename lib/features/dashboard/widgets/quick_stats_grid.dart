@@ -21,30 +21,30 @@ class QuickStatsGrid extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
-      crossAxisSpacing: 14,
-      mainAxisSpacing: 14,
-      childAspectRatio: 1.25,
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      childAspectRatio: 1.08,
       children: [
         _StatTile(
-          icon: Icons.credit_card,
+          icon: Icons.credit_score_rounded,
           title: "Active Loans",
           value: activeLoans.toString(),
           color: Colors.blue,
         ),
         _StatTile(
-          icon: Icons.check_circle,
+          icon: Icons.task_alt_rounded,
           title: "Closed Loans",
           value: closedLoans.toString(),
           color: Colors.green,
         ),
         _StatTile(
-          icon: Icons.payments,
+          icon: Icons.payments_rounded,
           title: "Monthly EMI",
           value: CurrencyFormatter.compact(monthlyEmi),
           color: Colors.orange,
         ),
         _StatTile(
-          icon: Icons.account_balance,
+          icon: Icons.account_balance_rounded,
           title: "Total Loans",
           value: totalLoans.toString(),
           color: Colors.deepPurple,
@@ -71,43 +71,64 @@ class _StatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
+    return Material(
+      color: theme.colorScheme.surfaceContainerHighest,
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: color.withValues(alpha: .12),
-              child: Icon(
-                icon,
-                color: color,
-              ),
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: () {},
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant,
             ),
-
-            const Spacer(),
-
-            Text(
-              value,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: .12),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 26,
+                ),
               ),
-            ),
 
-            const SizedBox(height: 4),
+              const SizedBox(height: 18),
 
-            Text(
-              title,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey.shade600,
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
+
+              const Spacer(),
+
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  value,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

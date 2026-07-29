@@ -19,7 +19,10 @@ class OutstandingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final progress = borrowed == 0 ? 0.0 : (paid / borrowed).clamp(0.0, 1.0);
+    final progress =
+        borrowed == 0 ? 0.0 : (paid / borrowed).clamp(0.0, 1.0);
+
+    final percentage = (progress * 100).toStringAsFixed(0);
 
     return AppCard(
       color: theme.colorScheme.primaryContainer,
@@ -31,21 +34,41 @@ class OutstandingCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.account_balance_wallet_outlined,
-                color: theme.colorScheme.onPrimaryContainer,
+                color: theme.colorScheme.primary,
               ),
-              const SizedBox(width: 8),
-              Text(
-                "Outstanding Balance",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer.withValues(
-                    alpha: 0.8,
+
+              const SizedBox(width: 10),
+
+              Expanded(
+                child: Text(
+                  "Outstanding Balance",
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: .12),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  "$percentage%",
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 18),
 
           /// Outstanding Amount
           Text(
@@ -55,33 +78,61 @@ class OutstandingCard extends StatelessWidget {
             ),
           ),
 
+          const SizedBox(height: 6),
+
+          Text(
+            "Current outstanding across all active loans",
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+
           const SizedBox(height: 24),
 
-          /// Animated Progress Bar
-          const SizedBox(height: 24),
-
+          /// Progress
           LoanProgressBar(progress: progress),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
 
-          /// Statistics
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              "$percentage% Repaid",
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
           Row(
             children: [
               Expanded(
-                child: _InfoTile(
+                child: _InfoCard(
+                  icon: Icons.account_balance_wallet_outlined,
                   title: "Borrowed",
                   value: CurrencyFormatter.compact(borrowed),
                 ),
               ),
+
+              const SizedBox(width: 12),
+
               Expanded(
-                child: _InfoTile(
+                child: _InfoCard(
+                  icon: Icons.check_circle_outline,
                   title: "Paid",
                   value: CurrencyFormatter.compact(paid),
                 ),
               ),
+
+              const SizedBox(width: 12),
+
               Expanded(
-                child: _InfoTile(
-                  title: "Remaining",
+                child: _InfoCard(
+                  icon: Icons.payments_outlined,
+                  title: "Balance",
                   value: CurrencyFormatter.compact(outstanding),
                 ),
               ),
@@ -93,28 +144,57 @@ class OutstandingCard extends StatelessWidget {
   }
 }
 
-class _InfoTile extends StatelessWidget {
+class _InfoCard extends StatelessWidget {
+  final IconData icon;
   final String title;
   final String value;
 
-  const _InfoTile({required this.title, required this.value});
+  const _InfoCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: theme.textTheme.bodySmall),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withValues(alpha: .55),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            size: 20,
+            color: theme.colorScheme.primary,
           ),
-        ),
-      ],
+
+          const SizedBox(height: 10),
+
+          Text(
+            title,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

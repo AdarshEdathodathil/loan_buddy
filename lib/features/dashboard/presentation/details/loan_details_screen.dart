@@ -27,7 +27,6 @@ class LoanDetailsScreen extends ConsumerWidget {
 
     final repository = ref.read(loanRepositoryProvider);
 
-
     return loanAsync.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
@@ -148,8 +147,10 @@ class LoanDetailsScreen extends ConsumerWidget {
                       : () async {
                           final result = await showDialog<Map<String, dynamic>>(
                             context: context,
-                            builder: (_) =>
-                                AddPaymentDialog(defaultAmount: loan.emiAmount),
+                            builder: (_) => AddPaymentDialog(
+                              defaultAmount: loan.emiAmount,
+                              outstandingAmount: loan.outstandingAmount,
+                            ),
                           );
 
                           if (result == null) return;
@@ -201,7 +202,22 @@ class LoanDetailsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
 
-              EmiTimelineCard(loan: loan),
+              payments.when(
+                loading: () => const Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ),
+                error: (e, _) => Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text("Unable to load EMI timeline"),
+                  ),
+                ),
+                data: (paymentList) =>
+                    EmiTimelineCard(loan: loan, payments: paymentList),
+              ),
             ],
           ),
         );
