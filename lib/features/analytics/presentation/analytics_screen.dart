@@ -15,6 +15,8 @@ import 'package:loan_buddy/features/analytics/services/debt_forecast_calculator.
 import 'package:loan_buddy/features/analytics/widgets/debt_forecast_card.dart';
 import 'package:loan_buddy/features/analytics/widgets/extra_emi_simulator.dart';
 import 'package:loan_buddy/features/analytics/widgets/smart_repayment_advisor_card.dart';
+import 'package:loan_buddy/features/payoff/providers/debt_payoff_provider.dart';
+import 'package:loan_buddy/features/payoff/widgets/debt_payoff_card.dart';
 
 class AnalyticsScreen extends ConsumerWidget {
   const AnalyticsScreen({super.key});
@@ -24,6 +26,7 @@ class AnalyticsScreen extends ConsumerWidget {
     final trendAsync = ref.watch(monthlyEmiTrendProvider);
     final analytics = ref.watch(analyticsProvider);
     final insightsAsync = ref.watch(smartInsightsProvider);
+    final payoffAsync = ref.watch(debtPayoffProvider);
     // final advice = SmartRepaymentAdvisor.generate(loans);
 
     return Scaffold(
@@ -55,6 +58,24 @@ class AnalyticsScreen extends ConsumerWidget {
                   ],
                 ),
               ),
+
+              DashboardSection(
+  title: 'Debt Payoff',
+  child: payoffAsync.when(
+    data: (result) => DebtPayoffCard(
+      result: result,
+    ),
+    loading: () => const Center(
+      child: CircularProgressIndicator(),
+    ),
+    error: (e, _) => Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(e.toString()),
+      ),
+    ),
+  ),
+),
 
               DashboardSection(
                 title: 'Financial Advisor',

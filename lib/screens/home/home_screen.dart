@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:loan_buddy/features/analytics/presentation/analytics_screen.dart';
 
 import 'package:loan_buddy/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:loan_buddy/features/settings/screens/settings_screen.dart';
 import '../loans/loans_screen.dart';
 import '../calendar/calendar_screen.dart';
-import '../settings/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

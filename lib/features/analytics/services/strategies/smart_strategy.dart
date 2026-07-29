@@ -1,13 +1,14 @@
 import 'package:loan_buddy/core/database/app_database.dart';
 import 'package:loan_buddy/features/analytics/models/repayment_advice.dart';
+import 'package:loan_buddy/features/analytics/models/repayment_strategy_type.dart';
 import 'package:loan_buddy/features/analytics/services/repayment_strategy.dart';
 import 'package:loan_buddy/features/analytics/services/smart_repayment_advisor.dart';
 
 class SmartStrategy implements RepaymentStrategy {
   const SmartStrategy();
 
-  @override
-  String get id => 'smart';
+ @override
+RepaymentStrategyType get type => RepaymentStrategyType.smart;
 
   @override
   String get name => 'Smart';

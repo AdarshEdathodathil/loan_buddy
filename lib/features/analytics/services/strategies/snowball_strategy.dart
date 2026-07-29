@@ -1,12 +1,13 @@
 import 'package:loan_buddy/core/database/app_database.dart';
 import 'package:loan_buddy/features/analytics/models/repayment_advice.dart';
+import 'package:loan_buddy/features/analytics/models/repayment_strategy_type.dart';
 import 'package:loan_buddy/features/analytics/services/repayment_strategy.dart';
 
 class SnowballStrategy implements RepaymentStrategy {
   const SnowballStrategy();
 
-  @override
-  String get id => 'snowball';
+ @override
+RepaymentStrategyType get type => RepaymentStrategyType.snowball;
 
   @override
   String get name => 'Snowball';
