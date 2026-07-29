@@ -5,10 +5,10 @@ import 'package:loan_buddy/features/loans/presentation/add_loan/add_loan_screen.
 import 'package:loan_buddy/features/loans/providers/loan_details_provider.dart';
 import 'package:loan_buddy/features/loans/providers/loan_list_provider.dart';
 import 'package:loan_buddy/features/loans/providers/loan_provider.dart';
+import 'package:loan_buddy/features/notifications/providers/notification_provider.dart';
 import 'package:loan_buddy/features/payments/presentation/add_payment_dialog.dart';
 import 'package:loan_buddy/features/payments/providers/payment_controller.dart';
 import 'package:loan_buddy/features/payments/providers/payment_history_provider.dart';
-import 'package:loan_buddy/core/services/notification_service.dart';
 import 'package:loan_buddy/features/dashboard/presentation/details/widgets/loan_header.dart';
 import 'package:loan_buddy/features/dashboard/presentation/details/widgets/loan_summary_card.dart';
 import 'package:loan_buddy/features/dashboard/presentation/details/widgets/repayment_progress_card.dart';
@@ -95,7 +95,9 @@ class LoanDetailsScreen extends ConsumerWidget {
 
                   if (confirm != true) return;
 
-                  await NotificationService.instance.cancelReminder(loan.id);
+                  await ref
+    .read(notificationRepositoryProvider)
+    .cancelLoanReminder(loan.id);
 
                   await repository.deleteLoanWithPayments(loan.id);
 

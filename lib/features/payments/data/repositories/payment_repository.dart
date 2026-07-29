@@ -177,6 +177,14 @@ Future<void> makePayment({
         .watch();
   }
 
+  Stream<List<Payment>> watchAllPayments() {
+  return (db.select(db.payments)
+        ..orderBy([
+          (p) => OrderingTerm.desc(p.paymentDate),
+        ]))
+      .watch();
+}
+
   Future<void> deletePayment(int paymentId) async {
     await (db.delete(db.payments)..where((p) => p.id.equals(paymentId))).go();
   }

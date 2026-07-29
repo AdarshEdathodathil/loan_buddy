@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:loan_buddy/features/dashboard/models/analytics_data.dart';
+import 'package:loan_buddy/features/analytics/models/analytics_data.dart';
 
 class RepaymentProgressCard extends StatelessWidget {
   const RepaymentProgressCard({

@@ -8,6 +8,11 @@ import 'package:loan_buddy/features/analytics/widgets/smart_insights_card.dart';
 import 'package:loan_buddy/features/analytics/widgets/repayment_progress_card.dart';
 import 'package:loan_buddy/features/analytics/providers/payment_analytics_provider.dart';
 import 'package:loan_buddy/features/analytics/widgets/emi_trend_chart.dart';
+import 'package:loan_buddy/features/analytics/services/loan_health_calculator.dart';
+import 'package:loan_buddy/features/analytics/widgets/loan_health_card.dart';
+import 'package:loan_buddy/features/analytics/services/debt_forecast_calculator.dart';
+import 'package:loan_buddy/features/analytics/widgets/debt_forecast_card.dart';
+import 'package:loan_buddy/features/analytics/widgets/extra_emi_simulator.dart';
 
 class AnalyticsScreen extends ConsumerWidget {
   const AnalyticsScreen({super.key});
@@ -24,9 +29,23 @@ class AnalyticsScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text(e.toString())),
         data: (data) {
+          final health = LoanHealthCalculator.calculate(data);
+          final forecast = DebtForecastCalculator.calculate(data);
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
+              LoanHealthCard(health: health),
+
+              const SizedBox(height: 20),
+
+              DebtForecastCard(forecast: forecast),
+
+              const SizedBox(height: 20),
+
+              ExtraEmiSimulator(analytics: data),
+
+              const SizedBox(height: 20),
+
               InsightCards(data: data),
 
               const SizedBox(height: 20),

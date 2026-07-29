@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:loan_buddy/features/dashboard/models/analytics_data.dart';
+import 'package:loan_buddy/features/analytics/models/analytics_data.dart';
 
 class InsightCards extends StatelessWidget {
   final AnalyticsData data;
