@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:loan_buddy/core/database/app_database.dart';
 
-class PaymentHistoryCard extends StatelessWidget {
-  const PaymentHistoryCard({super.key, required this.payments});
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/database/app_database.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
+
+class PaymentHistoryCard extends ConsumerWidget {
+  const PaymentHistoryCard({
+    super.key,
+    required this.payments,
+  });
 
   final List<Payment> payments;
 
   @override
-  Widget build(BuildContext context) {
-    final currency = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -25,9 +30,9 @@ class PaymentHistoryCard extends StatelessWidget {
           children: [
             Text(
               "Payment History",
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
 
             const SizedBox(height: 20),
@@ -62,7 +67,10 @@ class PaymentHistoryCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              currency.format(payment.amount),
+                              CurrencyFormatter.format(
+                                payment.amount,
+                                currency,
+                              ),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -90,7 +98,9 @@ class PaymentHistoryCard extends StatelessWidget {
                       ),
 
                       Text(
-                        DateFormat('dd MMM yyyy').format(payment.paymentDate),
+                        DateFormat('dd MMM yyyy').format(
+                          payment.paymentDate,
+                        ),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

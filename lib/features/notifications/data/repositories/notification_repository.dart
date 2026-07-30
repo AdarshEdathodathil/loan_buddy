@@ -1,5 +1,7 @@
+import 'package:loan_buddy/core/currency/supported_currencies.dart';
 import 'package:loan_buddy/core/database/app_database.dart';
 import 'package:loan_buddy/core/services/notification_service.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 
 class NotificationRepository {
   NotificationRepository(this._service);
@@ -14,7 +16,10 @@ class NotificationRepository {
     await _service.scheduleMonthlyReminder(
       id: loan.id,
       loanName: loan.name,
-      emiAmount: loan.emiAmount,
+      formattedEmiAmount: CurrencyFormatter.compact(
+        loan.emiAmount,
+        SupportedCurrencies.inr,
+      ),
       dueDay: loan.dueDay,
       reminderDaysBefore: loan.reminderDaysBefore,
       reminderTime: loan.reminderTime,
@@ -30,12 +35,12 @@ class NotificationRepository {
   }
 
   Future<void> rescheduleAllLoans(List<Loan> loans) async {
-  await cancelAllReminders();
+    await cancelAllReminders();
 
-  for (final loan in loans) {
-    if (!loan.reminderEnabled || loan.isClosed) continue;
+    for (final loan in loans) {
+      if (!loan.reminderEnabled || loan.isClosed) continue;
 
-    await scheduleLoanReminder(loan);
+      await scheduleLoanReminder(loan);
+    }
   }
-}
 }

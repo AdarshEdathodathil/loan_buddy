@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:loan_buddy/core/database/app_database.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LoanSummaryCard extends StatelessWidget {
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/database/app_database.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
+
+class LoanSummaryCard extends ConsumerWidget {
   const LoanSummaryCard({
     super.key,
     required this.loan,
@@ -11,12 +14,8 @@ class LoanSummaryCard extends StatelessWidget {
   final Loan loan;
 
   @override
-  Widget build(BuildContext context) {
-    final currency = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
 
     return Card(
       elevation: 0,
@@ -42,14 +41,20 @@ class LoanSummaryCard extends StatelessWidget {
                 Expanded(
                   child: _SummaryItem(
                     title: "Loan Amount",
-                    value: currency.format(loan.totalAmount),
+                    value: CurrencyFormatter.format(
+                      loan.totalAmount,
+                      currency,
+                    ),
                     icon: Icons.account_balance_wallet_outlined,
                   ),
                 ),
                 Expanded(
                   child: _SummaryItem(
                     title: "EMI",
-                    value: currency.format(loan.emiAmount),
+                    value: CurrencyFormatter.format(
+                      loan.emiAmount,
+                      currency,
+                    ),
                     icon: Icons.payments_outlined,
                   ),
                 ),

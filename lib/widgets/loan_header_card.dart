@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 
-class LoanHeaderCard extends StatelessWidget {
+class LoanHeaderCard extends ConsumerWidget {
   final String loanName;
   final String lender;
   final double totalAmount;
@@ -15,7 +18,8 @@ class LoanHeaderCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
     final paid = totalAmount - outstandingAmount;
 
     final progress = totalAmount == 0
@@ -24,42 +28,27 @@ class LoanHeaderCard extends StatelessWidget {
 
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              loanName,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
+            Text(loanName, style: Theme.of(context).textTheme.headlineSmall),
 
             const SizedBox(height: 4),
 
-            Text(
-              lender,
-              style: TextStyle(
-                color: Colors.grey.shade600,
-              ),
-            ),
+            Text(lender, style: TextStyle(color: Colors.grey.shade600)),
 
             const SizedBox(height: 20),
 
-            const Text(
-              "Outstanding Balance",
-            ),
+            const Text("Outstanding Balance"),
 
             const SizedBox(height: 8),
 
             Text(
-              "₹${outstandingAmount.toStringAsFixed(0)}",
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
+              CurrencyFormatter.compact(outstandingAmount, currency),
+              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 18),
@@ -75,8 +64,9 @@ class LoanHeaderCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Paid ₹${paid.toStringAsFixed(0)}"),
-                Text("Total ₹${totalAmount.toStringAsFixed(0)}"),
+                Text("Paid ${CurrencyFormatter.compact(paid, currency)}"),
+                Text("Total ${CurrencyFormatter.compact(totalAmount, currency)}",
+                ),
               ],
             ),
           ],

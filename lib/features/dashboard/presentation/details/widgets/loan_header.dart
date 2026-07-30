@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:loan_buddy/core/database/app_database.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LoanHeader extends StatelessWidget {
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/database/app_database.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
+
+class LoanHeader extends ConsumerWidget {
   const LoanHeader({
     super.key,
     required this.loan,
@@ -11,12 +14,8 @@ class LoanHeader extends StatelessWidget {
   final Loan loan;
 
   @override
-  Widget build(BuildContext context) {
-    final currency = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
 
     return Card(
       elevation: 0,
@@ -50,7 +49,10 @@ class LoanHeader extends StatelessWidget {
             const SizedBox(height: 8),
 
             Text(
-              currency.format(loan.outstandingAmount),
+              CurrencyFormatter.format(
+                loan.outstandingAmount,
+                currency,
+              ),
               style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,

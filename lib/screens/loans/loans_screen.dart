@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 import 'package:loan_buddy/features/dashboard/presentation/details/loan_details_screen.dart';
 import 'package:loan_buddy/features/loans/providers/loan_list_provider.dart';
 
@@ -10,6 +12,7 @@ class LoansScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loans = ref.watch(loanListProvider);
+    final currency = ref.watch(currencyProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -53,7 +56,10 @@ class LoansScreen extends ConsumerWidget {
                         style: TextStyle(fontSize: 12),
                       ),
                       Text(
-                        "₹${loan.emiAmount.toStringAsFixed(0)}",
+                        CurrencyFormatter.compact(
+                          loan.emiAmount,
+                          currency,
+                        ),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
@@ -76,7 +82,9 @@ class LoansScreen extends ConsumerWidget {
           );
         },
         loading: () =>
-            const Center(child: CircularProgressIndicator()),
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
         error: (e, _) => Center(
           child: Text(e.toString()),
         ),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loan_buddy/core/constants/payment_type.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 
-class AddPaymentDialog extends StatefulWidget {
+class AddPaymentDialog extends ConsumerStatefulWidget {
   final double defaultAmount;
   final double outstandingAmount;
 
@@ -12,10 +15,10 @@ class AddPaymentDialog extends StatefulWidget {
   });
 
   @override
-  State<AddPaymentDialog> createState() => _AddPaymentDialogState();
+  ConsumerState<AddPaymentDialog> createState() => _AddPaymentDialogState();
 }
 
-class _AddPaymentDialogState extends State<AddPaymentDialog> {
+class _AddPaymentDialogState extends ConsumerState<AddPaymentDialog> {
   late TextEditingController amountController;
 
   DateTime paymentDate = DateTime.now();
@@ -42,6 +45,7 @@ class _AddPaymentDialogState extends State<AddPaymentDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final currency = ref.watch(currencyProvider);
     return AlertDialog(
       title: Text(switch (paymentType) {
         PaymentType.emi => "Pay EMI",
@@ -61,7 +65,7 @@ class _AddPaymentDialogState extends State<AddPaymentDialog> {
               ),
               decoration: InputDecoration(
                 labelText: "Payment Amount",
-                prefixText: "₹ ",
+                prefixText: "${currency.symbol} ",
                 helperText: paymentType == PaymentType.foreclosure
                     ? "Outstanding balance will be paid."
                     : null,
@@ -132,7 +136,8 @@ class _AddPaymentDialogState extends State<AddPaymentDialog> {
                   title: const Text("Close Loan?"),
                   content: Text(
                     "This will pay the remaining outstanding amount of "
-                    "₹${widget.outstandingAmount.toStringAsFixed(0)} and permanently close this loan.",
+                    "${CurrencyFormatter.format(widget.outstandingAmount, currency)} "
+                    "and permanently close this loan.",
                   ),
                   actions: [
                     TextButton(

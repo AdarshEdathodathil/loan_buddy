@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
 
 import '../state/add_loan_provider.dart';
 
@@ -10,6 +11,7 @@ class LoanDetailsStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(addLoanProvider);
     final notifier = ref.read(addLoanProvider.notifier);
+    final currency = ref.watch(currencyProvider);
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -28,15 +30,13 @@ class LoanDetailsStep extends ConsumerWidget {
                 ? ''
                 : state.totalAmount.toString(),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Total Loan Amount',
-              prefixText: '₹ ',
-              border: OutlineInputBorder(),
+              prefixText: '${currency.symbol} ',
+              border: const OutlineInputBorder(),
             ),
             onChanged: (value) {
-              notifier.updateTotalAmount(
-                double.tryParse(value) ?? 0,
-              );
+              notifier.updateTotalAmount(double.tryParse(value) ?? 0);
             },
           ),
 
@@ -47,15 +47,13 @@ class LoanDetailsStep extends ConsumerWidget {
                 ? ''
                 : state.outstandingAmount.toString(),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Outstanding Amount',
-              prefixText: '₹ ',
-              border: OutlineInputBorder(),
+              prefixText: '${currency.symbol} ',
+              border: const OutlineInputBorder(),
             ),
             onChanged: (value) {
-              notifier.updateOutstanding(
-                double.tryParse(value) ?? 0,
-              );
+              notifier.updateOutstanding(double.tryParse(value) ?? 0);
             },
           ),
 
@@ -72,9 +70,7 @@ class LoanDetailsStep extends ConsumerWidget {
               border: OutlineInputBorder(),
             ),
             onChanged: (value) {
-              notifier.updateInterest(
-                double.tryParse(value) ?? 0,
-              );
+              notifier.updateInterest(double.tryParse(value) ?? 0);
             },
           ),
 

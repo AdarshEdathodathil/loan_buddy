@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
 import 'package:loan_buddy/core/database/app_database.dart';
 import 'package:loan_buddy/core/utils/currency_formatter.dart';
 import 'package:loan_buddy/shared/widgets/app_card.dart';
 import 'package:loan_buddy/shared/widgets/loan_progress_bar.dart';
 
-class LoanCard extends StatelessWidget {
+class LoanCard extends ConsumerWidget {
   final Loan loan;
   final VoidCallback onTap;
 
@@ -14,11 +16,10 @@ class LoanCard extends StatelessWidget {
     required this.onTap,
   });
 
-  
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currency = ref.watch(currencyProvider);
 
     final progress = loan.totalAmount == 0
         ? 0.0
@@ -33,7 +34,7 @@ class LoanCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Header
+            // Header
             Row(
               children: [
                 CircleAvatar(
@@ -44,9 +45,7 @@ class LoanCard extends StatelessWidget {
                     color: theme.colorScheme.primary,
                   ),
                 ),
-
                 const SizedBox(width: 14),
-
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +64,6 @@ class LoanCard extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 _StatusChip(isClosed: loan.isClosed),
               ],
             ),
@@ -82,25 +80,25 @@ class LoanCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _InfoItem(
-                    title: "Outstanding",
+                    title: 'Outstanding',
                     value: CurrencyFormatter.compact(
                       loan.outstandingAmount,
+                      currency,
                     ),
                   ),
                 ),
-
                 Expanded(
                   child: _InfoItem(
-                    title: "Monthly EMI",
+                    title: 'Monthly EMI',
                     value: CurrencyFormatter.compact(
                       loan.emiAmount,
+                      currency,
                     ),
                   ),
                 ),
-
                 Expanded(
                   child: _InfoItem(
-                    title: "Due Day",
+                    title: 'Due Day',
                     value: loan.dueDay.toString(),
                   ),
                 ),
@@ -113,7 +111,7 @@ class LoanCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  "View Details",
+                  'View Details',
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: theme.colorScheme.primary,
                   ),
@@ -132,6 +130,7 @@ class LoanCard extends StatelessWidget {
     );
   }
 }
+
 class _InfoItem extends StatelessWidget {
   final String title;
   final String value;
@@ -163,6 +162,7 @@ class _InfoItem extends StatelessWidget {
     );
   }
 }
+
 class _StatusChip extends StatelessWidget {
   final bool isClosed;
 
@@ -188,7 +188,7 @@ class _StatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        isClosed ? "Closed" : "Active",
+        isClosed ? 'Closed' : 'Active',
         style: TextStyle(
           color: color,
           fontWeight: FontWeight.bold,

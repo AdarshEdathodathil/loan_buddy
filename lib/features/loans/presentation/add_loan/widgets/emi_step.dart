@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
 
 import '../state/add_loan_provider.dart';
 
@@ -27,33 +28,29 @@ class EmiStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(addLoanProvider);
     final notifier = ref.read(addLoanProvider.notifier);
+    final currency = ref.watch(currencyProvider);
 
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'EMI Details',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text('EMI Details', style: Theme.of(context).textTheme.headlineSmall),
 
           const SizedBox(height: 24),
 
           TextFormField(
-            initialValue:
-                state.emiAmount == 0 ? '' : state.emiAmount.toString(),
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
+            initialValue: state.emiAmount == 0
+                ? ''
+                : state.emiAmount.toString(),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
               labelText: 'Monthly EMI',
-              prefixText: '₹ ',
-              border: OutlineInputBorder(),
+              prefixText: '${currency.symbol} ',
+              border: const OutlineInputBorder(),
             ),
             onChanged: (value) {
-              notifier.updateEmi(
-                double.tryParse(value) ?? 0,
-              );
+              notifier.updateEmi(double.tryParse(value) ?? 0);
             },
           ),
 
@@ -67,9 +64,7 @@ class EmiStep extends ConsumerWidget {
               border: OutlineInputBorder(),
             ),
             onChanged: (value) {
-              notifier.updateDueDay(
-                int.tryParse(value) ?? 1,
-              );
+              notifier.updateDueDay(int.tryParse(value) ?? 1);
             },
           ),
 
@@ -88,11 +83,7 @@ class EmiStep extends ConsumerWidget {
             ),
             trailing: const Icon(Icons.calendar_today),
             onTap: () {
-              _pickDate(
-                context,
-                state.startDate,
-                notifier.updateStartDate,
-              );
+              _pickDate(context, state.startDate, notifier.updateStartDate);
             },
           ),
 
@@ -111,11 +102,7 @@ class EmiStep extends ConsumerWidget {
             ),
             trailing: const Icon(Icons.calendar_today),
             onTap: () {
-              _pickDate(
-                context,
-                state.endDate,
-                notifier.updateEndDate,
-              );
+              _pickDate(context, state.endDate, notifier.updateEndDate);
             },
           ),
 

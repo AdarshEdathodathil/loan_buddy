@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 
-class CurrencyText extends StatelessWidget {
+class CurrencyText extends ConsumerWidget  {
   const CurrencyText(
     this.amount, {
     super.key,
@@ -16,15 +18,11 @@ class CurrencyText extends StatelessWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
 
     return Text(
-      formatter.format(amount),
+      CurrencyFormatter.format(amount, currency),
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: fontWeight,

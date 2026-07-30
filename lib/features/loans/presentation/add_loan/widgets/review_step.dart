@@ -44,10 +44,10 @@ class ReviewStep extends ConsumerWidget {
           item("Loan Name", state.loanName),
           item("Lender", state.lender),
           item("Loan Type", state.loanType.name),
-          item("Total Amount", "₹ ${state.totalAmount}"),
-          item("Outstanding", "₹ ${state.outstandingAmount}"),
+          item("Total Amount", "${state.totalAmount}"),
+          item("Outstanding", "${state.outstandingAmount}"),
           item("Interest", "${state.interestRate}%"),
-          item("Monthly EMI", "₹ ${state.emiAmount}"),
+          item("Monthly EMI", "${state.emiAmount}"),
           item("Due Day", state.dueDay.toString()),
 
           const Spacer(),

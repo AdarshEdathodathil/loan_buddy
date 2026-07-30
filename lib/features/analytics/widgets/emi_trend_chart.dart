@@ -101,7 +101,7 @@ class EmiTrendChart extends StatelessWidget {
                         getTitlesWidget: (value, meta) {
                           return Text(
                             NumberFormat.compactCurrency(
-                              symbol: '₹',
+                              symbol: '',
                               decimalDigits: 0,
                             ).format(value),
                             style: const TextStyle(fontSize: 10),

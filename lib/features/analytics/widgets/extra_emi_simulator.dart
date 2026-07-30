@@ -40,7 +40,7 @@ class ExtraEmiSimulator extends ConsumerWidget {
             const SizedBox(height: 20),
 
             Text(
-              'Extra EMI: ₹${extraEmi.toStringAsFixed(0)}',
+              'Extra EMI: ${extraEmi.toStringAsFixed(0)}',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

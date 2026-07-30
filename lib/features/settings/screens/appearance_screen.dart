@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loan_buddy/core/theme/theme_provider.dart';
+import 'package:loan_buddy/features/settings/widgets/theme_option_card.dart';
 
 class AppearanceScreen extends ConsumerWidget {
   const AppearanceScreen({super.key});
@@ -11,52 +12,54 @@ class AppearanceScreen extends ConsumerWidget {
     final themeNotifier = ref.read(themeProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Appearance'),
-      ),
+      appBar: AppBar(title: const Text('Appearance')),
       body: ListView(
         children: [
           const SizedBox(height: 12),
-
-          RadioListTile<ThemeMode>(
-            value: ThemeMode.system,
-            // ignore: deprecated_member_use
-            groupValue: themeMode,
-            title: const Text('System'),
-            subtitle: const Text('Follow your device settings'),
-            // ignore: deprecated_member_use
-            onChanged: (value) {
-              if (value != null) {
-                themeNotifier.setTheme(value);
-              }
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Choose your theme',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Select how Loan Buddy looks on your device.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+          ThemeOptionCard(
+            icon: Icons.brightness_auto,
+            title: 'System Default',
+            subtitle: 'Follow your device settings',
+            selected: themeMode == ThemeMode.system,
+            onTap: () {
+              themeNotifier.setTheme(ThemeMode.system);
             },
           ),
 
-          RadioListTile<ThemeMode>(
-            value: ThemeMode.light,
-            // ignore: deprecated_member_use
-            groupValue: themeMode,
-            title: const Text('Light'),
-            subtitle: const Text('Always use the light theme'),
-            // ignore: deprecated_member_use
-            onChanged: (value) {
-              if (value != null) {
-                themeNotifier.setTheme(value);
-              }
+          ThemeOptionCard(
+            icon: Icons.light_mode,
+            title: 'Light',
+            subtitle: 'Always use the light theme',
+            selected: themeMode == ThemeMode.light,
+            onTap: () {
+              themeNotifier.setTheme(ThemeMode.light);
             },
           ),
 
-          RadioListTile<ThemeMode>(
-            value: ThemeMode.dark,
-            // ignore: deprecated_member_use
-            groupValue: themeMode,
-            title: const Text('Dark'),
-            subtitle: const Text('Always use the dark theme'),
-            // ignore: deprecated_member_use
-            onChanged: (value) {
-              if (value != null) {
-                themeNotifier.setTheme(value);
-              }
+          ThemeOptionCard(
+            icon: Icons.dark_mode,
+            title: 'Dark',
+            subtitle: 'Always use the dark theme',
+            selected: themeMode == ThemeMode.dark,
+            onTap: () {
+              themeNotifier.setTheme(ThemeMode.dark);
             },
           ),
         ],

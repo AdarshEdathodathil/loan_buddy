@@ -38,11 +38,11 @@ class SmartRepaymentAdvisor {
   score: best.score,
 
   highlights: [
-    'Interest Rate: ${best.loan.interestRate.toStringAsFixed(2)}%',
-    'Outstanding Balance: ₹${best.loan.outstandingAmount.toStringAsFixed(0)}',
-    'Monthly EMI: ₹${best.loan.emiAmount.toStringAsFixed(0)}',
-    'Closing this loan reduces one monthly EMI.',
-  ],
+  'Interest Rate: ${best.loan.interestRate.toStringAsFixed(2)}%',
+  'Outstanding Balance: ${best.loan.outstandingAmount.toStringAsFixed(0)}',
+  'Monthly EMI: ${best.loan.emiAmount.toStringAsFixed(0)}',
+  'Closing this loan reduces one monthly EMI.',
+],
 
   priority: RepaymentPriority.high,
 );

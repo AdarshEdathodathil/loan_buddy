@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 
-class PaymentHistoryCard extends StatelessWidget {
+class PaymentHistoryCard extends ConsumerWidget {
   final String paymentType;
   final double amount;
   final String date;
@@ -26,7 +29,9 @@ class PaymentHistoryCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -41,7 +46,10 @@ class PaymentHistoryCard extends StatelessWidget {
           ),
         ),
         title: Text(
-          "₹${amount.toStringAsFixed(0)}",
+          CurrencyFormatter.compact(
+            amount,
+            currency,
+          ),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
           ),

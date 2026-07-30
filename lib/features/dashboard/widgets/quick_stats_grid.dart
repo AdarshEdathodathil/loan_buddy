@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
 import 'package:loan_buddy/core/utils/currency_formatter.dart';
 
-class QuickStatsGrid extends StatelessWidget {
+class QuickStatsGrid extends ConsumerWidget {
   final int activeLoans;
   final int closedLoans;
   final int totalLoans;
@@ -16,7 +18,9 @@ class QuickStatsGrid extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
+
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -40,7 +44,10 @@ class QuickStatsGrid extends StatelessWidget {
         _StatTile(
           icon: Icons.payments_rounded,
           title: "Monthly EMI",
-          value: CurrencyFormatter.compact(monthlyEmi),
+          value: CurrencyFormatter.compact(
+            monthlyEmi,
+            currency,
+          ),
           color: Colors.orange,
         ),
         _StatTile(

@@ -1,43 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 import 'package:loan_buddy/features/analytics/models/smart_insights.dart';
 
-class SmartInsightsCard extends StatelessWidget {
-  const SmartInsightsCard({
-    super.key,
-    required this.insights,
-  });
+class SmartInsightsCard extends ConsumerWidget {
+  const SmartInsightsCard({super.key, required this.insights});
 
   final SmartInsights insights;
 
   @override
-  Widget build(BuildContext context) {
-    final currency = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             Row(
               children: const [
-                Icon(Icons.lightbulb_outline,
-                    color: Colors.amber),
+                Icon(Icons.lightbulb_outline, color: Colors.amber),
                 SizedBox(width: 8),
                 Text(
                   "Smart Insights",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -49,8 +38,10 @@ class SmartInsightsCard extends StatelessWidget {
               iconColor: Colors.indigo,
               title: "Largest Loan",
               value: insights.largestLoan.name,
-              subtitle:
-                  currency.format(insights.largestLoan.totalAmount),
+              subtitle: CurrencyFormatter.format(
+                insights.largestLoan.totalAmount,
+                currency,
+              ),
             ),
 
             const Divider(height: 28),
@@ -59,8 +50,10 @@ class SmartInsightsCard extends StatelessWidget {
               icon: Icons.payments,
               iconColor: Colors.green,
               title: "Highest EMI",
-              value:
-                  currency.format(insights.highestEmiLoan.emiAmount),
+              value: CurrencyFormatter.format(
+                insights.highestEmiLoan.emiAmount,
+                currency,
+              ),
               subtitle: insights.highestEmiLoan.lender,
             ),
 
@@ -70,10 +63,8 @@ class SmartInsightsCard extends StatelessWidget {
               icon: Icons.calendar_today,
               iconColor: Colors.orange,
               title: "Next EMI",
-              value:
-                  "Every month on ${insights.nextDueLoan?.dueDay ?? '-'}",
-              subtitle:
-                  insights.nextDueLoan?.name ?? "No Active Loan",
+              value: "Every month on ${insights.nextDueLoan?.dueDay ?? '-'}",
+              subtitle: insights.nextDueLoan?.name ?? "No Active Loan",
             ),
 
             const Divider(height: 28),
@@ -82,10 +73,8 @@ class SmartInsightsCard extends StatelessWidget {
               icon: Icons.analytics_outlined,
               iconColor: Colors.purple,
               title: "Loans",
-              value:
-                  "${insights.activeLoans} Active",
-              subtitle:
-                  "${insights.closedLoans} Closed",
+              value: "${insights.activeLoans} Active",
+              subtitle: "${insights.closedLoans} Closed",
             ),
           ],
         ),
@@ -123,15 +112,11 @@ class _InsightTile extends StatelessWidget {
 
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
               ),
               const SizedBox(height: 4),
               Text(
@@ -142,12 +127,7 @@ class _InsightTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                ),
-              ),
+              Text(subtitle, style: TextStyle(color: Colors.grey.shade600)),
             ],
           ),
         ),

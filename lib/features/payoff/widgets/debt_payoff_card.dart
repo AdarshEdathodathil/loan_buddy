@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 import 'package:loan_buddy/features/payoff/models/debt_payoff_result.dart';
 
-class DebtPayoffCard extends StatelessWidget {
+class DebtPayoffCard extends ConsumerWidget {
   final DebtPayoffResult result;
 
   const DebtPayoffCard({
@@ -11,12 +15,8 @@ class DebtPayoffCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
 
     return Card(
       child: Padding(
@@ -35,7 +35,10 @@ class DebtPayoffCard extends StatelessWidget {
               leading: const Icon(Icons.account_balance_wallet),
               title: const Text('Remaining Principal'),
               trailing: Text(
-                formatter.format(result.remainingPrincipal),
+                CurrencyFormatter.format(
+                  result.remainingPrincipal,
+                  currency,
+                ),
               ),
             ),
 
@@ -43,7 +46,10 @@ class DebtPayoffCard extends StatelessWidget {
               leading: const Icon(Icons.trending_up),
               title: const Text('Estimated Interest'),
               trailing: Text(
-                formatter.format(result.estimatedInterestRemaining),
+                CurrencyFormatter.format(
+                  result.estimatedInterestRemaining,
+                  currency,
+                ),
               ),
             ),
 
@@ -51,8 +57,9 @@ class DebtPayoffCard extends StatelessWidget {
               leading: const Icon(Icons.calendar_month),
               title: const Text('Debt-Free Date'),
               trailing: Text(
-                DateFormat('dd MMM yyyy')
-                    .format(result.debtFreeDate),
+                DateFormat('dd MMM yyyy').format(
+                  result.debtFreeDate,
+                ),
               ),
             ),
 

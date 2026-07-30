@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 import 'package:loan_buddy/features/analytics/models/analytics_data.dart';
 
-class InsightCards extends StatelessWidget {
+class InsightCards extends ConsumerWidget {
   final AnalyticsData data;
 
-  const InsightCards({
-    super.key,
-    required this.data,
-  });
+  const InsightCards({super.key, required this.data});
 
   Widget _buildCard(
     BuildContext context,
@@ -17,9 +17,7 @@ class InsightCards extends StatelessWidget {
   ) {
     return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -27,18 +25,12 @@ class InsightCards extends StatelessWidget {
           children: [
             Icon(icon, size: 30),
             const SizedBox(height: 12),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text(title, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 6),
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            )
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
@@ -46,7 +38,9 @@ class InsightCards extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
+
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -58,25 +52,25 @@ class InsightCards extends StatelessWidget {
         _buildCard(
           context,
           "Borrowed",
-          "₹${data.totalBorrowed.toStringAsFixed(0)}",
+          CurrencyFormatter.compact(data.totalBorrowed, currency),
           Icons.account_balance_wallet,
         ),
         _buildCard(
           context,
           "Outstanding",
-          "₹${data.totalOutstanding.toStringAsFixed(0)}",
+          CurrencyFormatter.compact(data.totalOutstanding, currency),
           Icons.warning_amber_rounded,
         ),
         _buildCard(
           context,
           "Paid",
-          "₹${data.totalPaid.toStringAsFixed(0)}",
+          CurrencyFormatter.compact(data.totalPaid, currency),
           Icons.check_circle_outline,
         ),
         _buildCard(
           context,
           "Monthly EMI",
-          "₹${data.monthlyEmi.toStringAsFixed(0)}",
+          CurrencyFormatter.compact(data.monthlyEmi, currency),
           Icons.calendar_month,
         ),
       ],

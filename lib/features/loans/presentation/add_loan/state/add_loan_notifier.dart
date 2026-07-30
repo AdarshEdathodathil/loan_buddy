@@ -1,18 +1,18 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loan_buddy/features/loans/data/repositories/loan_repository.dart';
-import 'package:loan_buddy/features/loans/data/models/loan_type.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/supported_currencies.dart';
 import 'package:loan_buddy/core/database/app_database.dart';
 import 'package:loan_buddy/core/services/notification_service.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
+import 'package:loan_buddy/features/loans/data/models/loan_type.dart';
+import 'package:loan_buddy/features/loans/data/repositories/loan_repository.dart';
 
 import 'add_loan_state.dart';
 
 class AddLoanNotifier extends StateNotifier<AddLoanState> {
   final LoanRepository repository;
-  
 
   AddLoanNotifier(this.repository) : super(const AddLoanState());
-
 
   void nextStep() {
     state = state.copyWith(currentStep: state.currentStep + 1);
@@ -101,14 +101,19 @@ class AddLoanNotifier extends StateNotifier<AddLoanState> {
 
     final loanId = await repository.addLoan(loan);
 
+    final formattedEmiAmount = CurrencyFormatter.compact(
+      state.emiAmount,
+      SupportedCurrencies.inr,
+    );
+
     await NotificationService.instance.scheduleMonthlyReminder(
-  id: loanId,
-  loanName: state.loanName,
-  emiAmount: state.emiAmount,
-  dueDay: state.dueDay,
-  reminderDaysBefore: 1,
-  reminderTime: "09:00",
-);
+      id: loanId,
+      loanName: state.loanName,
+      formattedEmiAmount: formattedEmiAmount,
+      dueDay: state.dueDay,
+      reminderDaysBefore: 1,
+      reminderTime: "09:00",
+    );
   }
 
   Future<void> updateLoan(Loan existingLoan) async {
@@ -127,15 +132,21 @@ class AddLoanNotifier extends StateNotifier<AddLoanState> {
     );
 
     await repository.updateLoan(updatedLoan);
+
     await NotificationService.instance.cancelReminder(existingLoan.id);
 
-   await NotificationService.instance.scheduleMonthlyReminder(
-  id: existingLoan.id,
-  loanName: state.loanName,
-  emiAmount: state.emiAmount,
-  dueDay: state.dueDay,
-  reminderDaysBefore: 1,
-  reminderTime: "09:00",
-);
+    final formattedEmiAmount = CurrencyFormatter.compact(
+      state.emiAmount,
+      SupportedCurrencies.inr,
+    );
+
+    await NotificationService.instance.scheduleMonthlyReminder(
+      id: existingLoan.id,
+      loanName: state.loanName,
+      formattedEmiAmount: formattedEmiAmount,
+      dueDay: state.dueDay,
+      reminderDaysBefore: 1,
+      reminderTime: "09:00",
+    );
   }
 }

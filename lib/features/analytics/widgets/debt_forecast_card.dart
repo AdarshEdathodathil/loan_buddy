@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 import 'package:loan_buddy/features/analytics/models/debt_forecast.dart';
 
-class DebtForecastCard extends StatelessWidget {
+class DebtForecastCard extends ConsumerWidget {
   final DebtForecast forecast;
 
   const DebtForecastCard({
@@ -11,12 +15,8 @@ class DebtForecastCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
 
     return Card(
       child: Padding(
@@ -38,8 +38,9 @@ class DebtForecastCard extends StatelessWidget {
               leading: const Icon(Icons.calendar_today),
               title: const Text('Estimated Debt-Free Date'),
               subtitle: Text(
-                DateFormat('MMMM yyyy')
-                    .format(forecast.estimatedDebtFreeDate),
+                DateFormat('MMMM yyyy').format(
+                  forecast.estimatedDebtFreeDate,
+                ),
               ),
             ),
 
@@ -58,7 +59,10 @@ class DebtForecastCard extends StatelessWidget {
               leading: const Icon(Icons.account_balance_wallet),
               title: const Text('Remaining Principal'),
               trailing: Text(
-                formatter.format(forecast.remainingPrincipal),
+                CurrencyFormatter.format(
+                  forecast.remainingPrincipal,
+                  currency,
+                ),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
@@ -69,7 +73,10 @@ class DebtForecastCard extends StatelessWidget {
               leading: const Icon(Icons.payments),
               title: const Text('Current Monthly EMI'),
               trailing: Text(
-                formatter.format(forecast.remainingMonthlyEmi),
+                CurrencyFormatter.format(
+                  forecast.remainingMonthlyEmi,
+                  currency,
+                ),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),

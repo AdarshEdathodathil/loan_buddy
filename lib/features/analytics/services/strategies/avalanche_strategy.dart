@@ -38,7 +38,7 @@ RepaymentStrategyType get type => RepaymentStrategyType.avalanche;
 
       highlights: [
         'Highest interest rate: ${loan.interestRate.toStringAsFixed(2)}%',
-        'Outstanding balance: ₹${loan.outstandingAmount.toStringAsFixed(0)}',
+        'Outstanding balance: ${loan.outstandingAmount.toStringAsFixed(0)}',
         'Most interest savings over time',
         'Mathematically optimal repayment strategy',
       ],

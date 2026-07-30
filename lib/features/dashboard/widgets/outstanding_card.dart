@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
 import 'package:loan_buddy/core/utils/currency_formatter.dart';
 import 'package:loan_buddy/shared/widgets/app_card.dart';
 import 'package:loan_buddy/shared/widgets/loan_progress_bar.dart';
 
-class OutstandingCard extends StatelessWidget {
+class OutstandingCard extends ConsumerWidget {
   final double borrowed;
   final double outstanding;
   final double paid;
@@ -16,8 +18,9 @@ class OutstandingCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currency = ref.watch(currencyProvider);
 
     final progress =
         borrowed == 0 ? 0.0 : (paid / borrowed).clamp(0.0, 1.0);
@@ -29,16 +32,14 @@ class OutstandingCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Header
+          // Header
           Row(
             children: [
               Icon(
                 Icons.account_balance_wallet_outlined,
                 color: theme.colorScheme.primary,
               ),
-
               const SizedBox(width: 10),
-
               Expanded(
                 child: Text(
                   "Outstanding Balance",
@@ -47,7 +48,6 @@ class OutstandingCard extends StatelessWidget {
                   ),
                 ),
               ),
-
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -70,9 +70,12 @@ class OutstandingCard extends StatelessWidget {
 
           const SizedBox(height: 18),
 
-          /// Outstanding Amount
+          // Outstanding Amount
           Text(
-            CurrencyFormatter.compact(outstanding),
+            CurrencyFormatter.compact(
+              outstanding,
+              currency,
+            ),
             style: theme.textTheme.headlineLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -89,8 +92,9 @@ class OutstandingCard extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          /// Progress
-          LoanProgressBar(progress: progress),
+          LoanProgressBar(
+            progress: progress,
+          ),
 
           const SizedBox(height: 8),
 
@@ -113,7 +117,10 @@ class OutstandingCard extends StatelessWidget {
                 child: _InfoCard(
                   icon: Icons.account_balance_wallet_outlined,
                   title: "Borrowed",
-                  value: CurrencyFormatter.compact(borrowed),
+                  value: CurrencyFormatter.compact(
+                    borrowed,
+                    currency,
+                  ),
                 ),
               ),
 
@@ -123,7 +130,10 @@ class OutstandingCard extends StatelessWidget {
                 child: _InfoCard(
                   icon: Icons.check_circle_outline,
                   title: "Paid",
-                  value: CurrencyFormatter.compact(paid),
+                  value: CurrencyFormatter.compact(
+                    paid,
+                    currency,
+                  ),
                 ),
               ),
 
@@ -133,7 +143,10 @@ class OutstandingCard extends StatelessWidget {
                 child: _InfoCard(
                   icon: Icons.payments_outlined,
                   title: "Balance",
-                  value: CurrencyFormatter.compact(outstanding),
+                  value: CurrencyFormatter.compact(
+                    outstanding,
+                    currency,
+                  ),
                 ),
               ),
             ],
@@ -173,18 +186,14 @@ class _InfoCard extends StatelessWidget {
             size: 20,
             color: theme.colorScheme.primary,
           ),
-
           const SizedBox(height: 10),
-
           Text(
             title,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-
           const SizedBox(height: 4),
-
           Text(
             value,
             maxLines: 1,

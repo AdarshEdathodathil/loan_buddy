@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RepaymentProgressCard extends StatelessWidget {
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
+
+class RepaymentProgressCard extends ConsumerWidget {
   const RepaymentProgressCard({
     super.key,
     required this.borrowed,
@@ -12,18 +15,14 @@ class RepaymentProgressCard extends StatelessWidget {
   final double outstanding;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
+
     final paid = borrowed - outstanding;
 
     final progress = borrowed == 0
         ? 0.0
         : (paid / borrowed).clamp(0.0, 1.0);
-
-    final currency = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
 
     return Card(
       elevation: 0,
@@ -71,7 +70,10 @@ class RepaymentProgressCard extends StatelessWidget {
                 Expanded(
                   child: _AmountCard(
                     title: "Paid",
-                    value: currency.format(paid),
+                    value: CurrencyFormatter.format(
+                      paid,
+                      currency,
+                    ),
                     icon: Icons.check_circle_outline,
                   ),
                 ),
@@ -81,7 +83,10 @@ class RepaymentProgressCard extends StatelessWidget {
                 Expanded(
                   child: _AmountCard(
                     title: "Remaining",
-                    value: currency.format(outstanding),
+                    value: CurrencyFormatter.format(
+                      outstanding,
+                      currency,
+                    ),
                     icon: Icons.account_balance_wallet_outlined,
                   ),
                 ),

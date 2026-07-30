@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
 import 'package:loan_buddy/features/settings/screens/appearance_screen.dart';
+import 'package:loan_buddy/features/settings/screens/currency_screen.dart';
 import 'package:loan_buddy/features/settings/widgets/settings_section.dart';
 import 'package:loan_buddy/features/settings/widgets/settings_tile.dart';
 
@@ -9,6 +11,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selectedCurrency = ref.watch(currencyProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -30,10 +33,15 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const Divider(height: 1),
               SettingsTile(
-                icon: Icons.attach_money,
+                icon: Icons.currency_exchange,
                 title: 'Currency',
-                subtitle: 'Indian Rupee (₹)',
-                onTap: () {},
+                subtitle: selectedCurrency.name,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CurrencyScreen()),
+                  );
+                },
               ),
             ],
           ),

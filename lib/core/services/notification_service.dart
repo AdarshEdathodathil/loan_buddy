@@ -22,7 +22,7 @@ class NotificationService {
   Future<void> scheduleMonthlyReminder({
     required int id,
     required String loanName,
-    required double emiAmount,
+    required String formattedEmiAmount,
     required int dueDay,
     required int reminderDaysBefore,
     required String reminderTime,
@@ -67,8 +67,9 @@ class NotificationService {
       scheduledDate: scheduled,
       title: 'EMI Reminder',
       body: reminderDaysBefore == 0
-          ? '$loanName EMI of ₹${emiAmount.toStringAsFixed(0)} is due today.'
-          : '$loanName EMI of ₹${emiAmount.toStringAsFixed(0)} is due in $reminderDaysBefore day${reminderDaysBefore == 1 ? '' : 's'}.',
+    ? '$loanName EMI of $formattedEmiAmount is due today.'
+    : '$loanName EMI of $formattedEmiAmount is due in '
+      '$reminderDaysBefore day${reminderDaysBefore == 1 ? '' : 's'}.',
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'emi_reminders',

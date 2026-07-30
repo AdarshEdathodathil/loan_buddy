@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_buddy/core/currency/currency_provider.dart';
+import 'package:loan_buddy/core/utils/currency_formatter.dart';
 import 'package:loan_buddy/features/analytics/models/analytics_data.dart';
 
-class RepaymentProgressCard extends StatelessWidget {
-  const RepaymentProgressCard({
-    super.key,
-    required this.data,
-  });
+class RepaymentProgressCard extends ConsumerWidget {
+  const RepaymentProgressCard({super.key, required this.data});
 
   final AnalyticsData data;
 
   @override
-  Widget build(BuildContext context) {
-    final currency = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(currencyProvider);
 
     final progress = data.totalBorrowed == 0
         ? 0.0
@@ -24,25 +19,19 @@ class RepaymentProgressCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             const Row(
               children: [
                 Icon(Icons.trending_up, color: Colors.green),
                 SizedBox(width: 8),
                 Text(
                   "Repayment Progress",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -51,10 +40,7 @@ class RepaymentProgressCard extends StatelessWidget {
 
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 12,
-              ),
+              child: LinearProgressIndicator(value: progress, minHeight: 12),
             ),
 
             const SizedBox(height: 16),
@@ -73,17 +59,13 @@ class RepaymentProgressCard extends StatelessWidget {
 
             Row(
               children: [
-
                 Expanded(
                   child: Column(
                     children: [
-                      const Text(
-                        "Paid",
-                        style: TextStyle(color: Colors.grey),
-                      ),
+                      const Text("Paid", style: TextStyle(color: Colors.grey)),
                       const SizedBox(height: 6),
                       Text(
-                        currency.format(data.totalPaid),
+                        CurrencyFormatter.format(data.totalPaid, currency),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.green,
@@ -103,7 +85,7 @@ class RepaymentProgressCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        currency.format(data.totalOutstanding),
+                        CurrencyFormatter.format(data.totalOutstanding, currency),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,
