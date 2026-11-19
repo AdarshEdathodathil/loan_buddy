@@ -16,9 +16,7 @@ class AppCurrency {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AppCurrency &&
-          code == other.code;
+      identical(this, other) || other is AppCurrency && code == other.code;
 
   @override
   int get hashCode => code.hashCode;

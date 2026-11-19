@@ -1,4 +1,3 @@
-
 import 'package:loan_buddy/core/database/app_database.dart';
 import 'package:loan_buddy/features/analytics/models/repayment_advice.dart';
 import 'package:loan_buddy/features/analytics/models/repayment_strategy_type.dart';

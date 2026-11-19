@@ -10,9 +10,11 @@ class PaymentHistoryCard extends ConsumerWidget {
   const PaymentHistoryCard({
     super.key,
     required this.payments,
+    required this.onDelete,
   });
 
   final List<Payment> payments;
+  final Future<void> Function(Payment payment) onDelete;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,9 +22,7 @@ class PaymentHistoryCard extends ConsumerWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -30,9 +30,9 @@ class PaymentHistoryCard extends ConsumerWidget {
           children: [
             Text(
               "Payment History",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -80,7 +80,7 @@ class PaymentHistoryCard extends ConsumerWidget {
                             const SizedBox(height: 4),
 
                             Text(
-                              "EMI Payment",
+                              payment.paymentType,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
 
@@ -97,11 +97,22 @@ class PaymentHistoryCard extends ConsumerWidget {
                         ),
                       ),
 
-                      Text(
-                        DateFormat('dd MMM yyyy').format(
-                          payment.paymentDate,
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            DateFormat(
+                              'dd MMM yyyy',
+                            ).format(payment.paymentDate),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          IconButton(
+                            tooltip: 'Delete payment',
+                            visualDensity: VisualDensity.compact,
+                            onPressed: () => onDelete(payment),
+                            icon: const Icon(Icons.delete_outline, size: 20),
+                          ),
+                        ],
                       ),
                     ],
                   ),

@@ -1,4 +1,3 @@
-
 import 'package:loan_buddy/features/analytics/models/repayment_strategy_type.dart';
 
 class PayoffSimulationResult {

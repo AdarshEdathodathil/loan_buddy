@@ -85,7 +85,10 @@ class RepaymentProgressCard extends ConsumerWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        CurrencyFormatter.format(data.totalOutstanding, currency),
+                        CurrencyFormatter.format(
+                          data.totalOutstanding,
+                          currency,
+                        ),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,

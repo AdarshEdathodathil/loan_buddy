@@ -6,14 +6,11 @@ class ExtraEmiCalculator {
     required AnalyticsData data,
     required double extraEmi,
   }) {
-    final currentMonths =
-        (data.totalOutstanding / data.monthlyEmi).ceil();
+    final currentMonths = (data.totalOutstanding / data.monthlyEmi).ceil();
 
-    final newMonthlyPayment =
-        data.monthlyEmi + extraEmi;
+    final newMonthlyPayment = data.monthlyEmi + extraEmi;
 
-    final newMonths =
-        (data.totalOutstanding / newMonthlyPayment).ceil();
+    final newMonths = (data.totalOutstanding / newMonthlyPayment).ceil();
 
     final monthsSaved = currentMonths - newMonths;
 
@@ -28,11 +25,7 @@ class ExtraEmiCalculator {
         now.month + currentMonths,
         now.day,
       ),
-      newDebtFreeDate: DateTime(
-        now.year,
-        now.month + newMonths,
-        now.day,
-      ),
+      newDebtFreeDate: DateTime(now.year, now.month + newMonths, now.day),
       extraEmi: extraEmi,
     );
   }

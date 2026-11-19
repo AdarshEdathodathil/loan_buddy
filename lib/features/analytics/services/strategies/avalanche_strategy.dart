@@ -6,15 +6,14 @@ import 'package:loan_buddy/features/analytics/services/repayment_strategy.dart';
 class AvalancheStrategy implements RepaymentStrategy {
   const AvalancheStrategy();
 
- @override
-RepaymentStrategyType get type => RepaymentStrategyType.avalanche;
+  @override
+  RepaymentStrategyType get type => RepaymentStrategyType.avalanche;
 
   @override
   String get name => 'Avalanche';
 
   @override
-  String get description =>
-      'Pay off the highest interest rate loan first.';
+  String get description => 'Pay off the highest interest rate loan first.';
 
   @override
   RepaymentAdvice? generate(List<Loan> loans) {
@@ -24,9 +23,7 @@ RepaymentStrategyType get type => RepaymentStrategyType.avalanche;
       return null;
     }
 
-    activeLoans.sort(
-      (a, b) => b.interestRate.compareTo(a.interestRate),
-    );
+    activeLoans.sort((a, b) => b.interestRate.compareTo(a.interestRate));
 
     final loan = activeLoans.first;
 

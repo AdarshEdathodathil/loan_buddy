@@ -4,10 +4,7 @@ import 'package:loan_buddy/features/analytics/models/loan_health.dart';
 class LoanHealthCard extends StatelessWidget {
   final LoanHealth health;
 
-  const LoanHealthCard({
-    super.key,
-    required this.health,
-  });
+  const LoanHealthCard({super.key, required this.health});
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +26,7 @@ class LoanHealthCard extends StatelessWidget {
           children: [
             const Text(
               'Loan Health',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -68,10 +62,7 @@ class LoanHealthCard extends StatelessWidget {
             const SizedBox(height: 8),
 
             Center(
-              child: Text(
-                health.description,
-                textAlign: TextAlign.center,
-              ),
+              child: Text(health.description, textAlign: TextAlign.center),
             ),
           ],
         ),

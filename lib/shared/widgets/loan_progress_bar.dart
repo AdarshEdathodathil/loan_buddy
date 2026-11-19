@@ -35,8 +35,7 @@ class LoanProgressBar extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: animatedValue,
                 minHeight: height,
-                backgroundColor:
-                    theme.colorScheme.surfaceContainerHighest,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
                 valueColor: AlwaysStoppedAnimation<Color>(
                   color ?? theme.colorScheme.primary,
                 ),

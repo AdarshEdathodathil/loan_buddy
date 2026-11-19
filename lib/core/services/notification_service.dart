@@ -9,12 +9,23 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
+  static const _scheduledReminderSlots = 24;
+
   Future<void> initialize() async {
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
+    const darwinSettings = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
 
-    const settings = InitializationSettings(android: androidSettings);
+    const settings = InitializationSettings(
+      android: androidSettings,
+      iOS: darwinSettings,
+      macOS: darwinSettings,
+    );
 
     await _notifications.initialize(settings: settings);
   }
@@ -27,66 +38,88 @@ class NotificationService {
     required int reminderDaysBefore,
     required String reminderTime,
   }) async {
+    await cancelReminder(id);
+
     final now = tz.TZDateTime.now(tz.local);
 
     final parts = reminderTime.split(':');
     final hour = int.parse(parts[0]);
     final minute = int.parse(parts[1]);
 
-    // Due date for the current month
-    var dueDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      dueDay,
-      hour,
-      minute,
-    );
-
-    // If this month's due date has already passed, use next month
-    if (dueDate.isBefore(now)) {
-      dueDate = tz.TZDateTime(
+    var scheduledCount = 0;
+    var monthOffset = 0;
+    while (scheduledCount < _scheduledReminderSlots) {
+      final month = DateTime(now.year, now.month + monthOffset);
+      final lastDay = DateTime(month.year, month.month + 1, 0).day;
+      final effectiveDueDay = dueDay.clamp(1, lastDay);
+      final dueDate = tz.TZDateTime(
         tz.local,
-        now.year,
-        now.month + 1,
-        dueDay,
+        month.year,
+        month.month,
+        effectiveDueDay,
         hour,
         minute,
       );
-    }
+      final scheduled = dueDate.subtract(Duration(days: reminderDaysBefore));
+      monthOffset++;
 
-    // Subtract reminder days
-    final scheduled = dueDate.subtract(Duration(days: reminderDaysBefore));
+      if (!scheduled.isAfter(now)) continue;
 
-    // if (scheduled.isBefore(now)) {
-    //   scheduled = tz.TZDateTime(tz.local, now.year, now.month + 1, dueDay, 9);
-    // }
-
-    await _notifications.zonedSchedule(
-      id: id,
-      scheduledDate: scheduled,
-      title: 'EMI Reminder',
-      body: reminderDaysBefore == 0
-    ? '$loanName EMI of $formattedEmiAmount is due today.'
-    : '$loanName EMI of $formattedEmiAmount is due in '
-      '$reminderDaysBefore day${reminderDaysBefore == 1 ? '' : 's'}.',
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'emi_reminders',
-          'EMI Reminders',
-          channelDescription: 'Monthly EMI reminder notifications',
-          importance: Importance.max,
-          priority: Priority.high,
+      await _notifications.zonedSchedule(
+        id: _scheduledId(id, scheduledCount),
+        scheduledDate: scheduled,
+        title: 'EMI Reminder',
+        body: reminderDaysBefore == 0
+            ? '$loanName EMI of $formattedEmiAmount is due today.'
+            : '$loanName EMI of $formattedEmiAmount is due in '
+                  '$reminderDaysBefore day${reminderDaysBefore == 1 ? '' : 's'}.',
+        notificationDetails: const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'emi_reminders',
+            'EMI Reminders',
+            channelDescription: 'Monthly EMI reminder notifications',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
+          macOS: DarwinNotificationDetails(),
         ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
-    );
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+      scheduledCount++;
+    }
   }
 
   Future<void> cancelReminder(int id) async {
     await _notifications.cancel(id: id);
+    for (var slot = 0; slot < _scheduledReminderSlots; slot++) {
+      await _notifications.cancel(id: _scheduledId(id, slot));
+    }
   }
+
+  Future<bool> requestPermissions() async {
+    final androidGranted = await _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.requestNotificationsPermission();
+    final iosGranted = await _notifications
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
+    final macosGranted = await _notifications
+        .resolvePlatformSpecificImplementation<
+          MacOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
+
+    return (androidGranted ?? true) &&
+        (iosGranted ?? true) &&
+        (macosGranted ?? true);
+  }
+
+  int _scheduledId(int loanId, int slot) => loanId * 100 + slot;
 
   Future<void> cancelAll() async {
     await _notifications.cancelAll();

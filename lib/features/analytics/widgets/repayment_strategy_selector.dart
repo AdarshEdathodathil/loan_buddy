@@ -32,9 +32,7 @@ class RepaymentStrategySelector extends ConsumerWidget {
                 // ignore: deprecated_member_use
                 onChanged: (value) {
                   if (value != null) {
-                    ref
-                        .read(repaymentStrategyProvider.notifier)
-                        .state = value;
+                    ref.read(repaymentStrategyProvider.notifier).state = value;
                   }
                 },
               ),

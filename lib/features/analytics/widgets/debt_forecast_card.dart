@@ -9,10 +9,7 @@ import 'package:loan_buddy/features/analytics/models/debt_forecast.dart';
 class DebtForecastCard extends ConsumerWidget {
   final DebtForecast forecast;
 
-  const DebtForecastCard({
-    super.key,
-    required this.forecast,
-  });
+  const DebtForecastCard({super.key, required this.forecast});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,10 +23,7 @@ class DebtForecastCard extends ConsumerWidget {
           children: [
             const Text(
               'Debt-Free Forecast',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -38,9 +32,7 @@ class DebtForecastCard extends ConsumerWidget {
               leading: const Icon(Icons.calendar_today),
               title: const Text('Estimated Debt-Free Date'),
               subtitle: Text(
-                DateFormat('MMMM yyyy').format(
-                  forecast.estimatedDebtFreeDate,
-                ),
+                DateFormat('MMMM yyyy').format(forecast.estimatedDebtFreeDate),
               ),
             ),
 
@@ -49,9 +41,7 @@ class DebtForecastCard extends ConsumerWidget {
               title: const Text('Remaining EMIs'),
               trailing: Text(
                 '${forecast.remainingEmis}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
 
@@ -59,13 +49,8 @@ class DebtForecastCard extends ConsumerWidget {
               leading: const Icon(Icons.account_balance_wallet),
               title: const Text('Remaining Principal'),
               trailing: Text(
-                CurrencyFormatter.format(
-                  forecast.remainingPrincipal,
-                  currency,
-                ),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+                CurrencyFormatter.format(forecast.remainingPrincipal, currency),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
 
@@ -77,9 +62,7 @@ class DebtForecastCard extends ConsumerWidget {
                   forecast.remainingMonthlyEmi,
                   currency,
                 ),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],

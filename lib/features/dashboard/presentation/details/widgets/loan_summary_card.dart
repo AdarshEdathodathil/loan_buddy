@@ -6,10 +6,7 @@ import 'package:loan_buddy/core/database/app_database.dart';
 import 'package:loan_buddy/core/utils/currency_formatter.dart';
 
 class LoanSummaryCard extends ConsumerWidget {
-  const LoanSummaryCard({
-    super.key,
-    required this.loan,
-  });
+  const LoanSummaryCard({super.key, required this.loan});
 
   final Loan loan;
 
@@ -19,9 +16,7 @@ class LoanSummaryCard extends ConsumerWidget {
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -29,9 +24,9 @@ class LoanSummaryCard extends ConsumerWidget {
           children: [
             Text(
               "Loan Summary",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -41,20 +36,14 @@ class LoanSummaryCard extends ConsumerWidget {
                 Expanded(
                   child: _SummaryItem(
                     title: "Loan Amount",
-                    value: CurrencyFormatter.format(
-                      loan.totalAmount,
-                      currency,
-                    ),
+                    value: CurrencyFormatter.format(loan.totalAmount, currency),
                     icon: Icons.account_balance_wallet_outlined,
                   ),
                 ),
                 Expanded(
                   child: _SummaryItem(
                     title: "EMI",
-                    value: CurrencyFormatter.format(
-                      loan.emiAmount,
-                      currency,
-                    ),
+                    value: CurrencyFormatter.format(loan.emiAmount, currency),
                     icon: Icons.payments_outlined,
                   ),
                 ),
@@ -112,16 +101,13 @@ class _SummaryItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(title, style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(height: 4),
               Text(
                 value,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
             ],
           ),

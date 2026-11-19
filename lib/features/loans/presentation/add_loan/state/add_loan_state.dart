@@ -36,7 +36,7 @@ class AddLoanState {
     this.startDate,
     this.endDate,
     this.notes = '',
-    this.reminderEnabled = true,
+    this.reminderEnabled = false,
     this.reminderDaysBefore = 1,
     this.reminderTime = '09:00',
   });

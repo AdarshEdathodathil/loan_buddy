@@ -14,6 +14,8 @@ import 'package:loan_buddy/features/dashboard/presentation/details/widgets/loan_
 import 'package:loan_buddy/features/dashboard/presentation/details/widgets/repayment_progress_card.dart';
 import 'package:loan_buddy/features/dashboard/presentation/details/widgets/payment_history_card.dart';
 import 'package:loan_buddy/features/dashboard/presentation/details/widgets/emi_timeline_card.dart';
+import 'package:loan_buddy/features/dashboard/presentation/details/widgets/reminder_settings_card.dart';
+import 'package:loan_buddy/shared/widgets/app_page.dart';
 
 class LoanDetailsScreen extends ConsumerWidget {
   final int loanId;
@@ -96,8 +98,8 @@ class LoanDetailsScreen extends ConsumerWidget {
                   if (confirm != true) return;
 
                   await ref
-    .read(notificationRepositoryProvider)
-    .cancelLoanReminder(loan.id);
+                      .read(notificationRepositoryProvider)
+                      .cancelLoanReminder(loan.id);
 
                   await repository.deleteLoanWithPayments(loan.id);
 
@@ -113,114 +115,200 @@ class LoanDetailsScreen extends ConsumerWidget {
             ],
           ),
 
-          body: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              LoanHeader(loan: loan),
+          body: SafeArea(
+            top: false,
+            child: AppPage(
+              maxWidth: 900,
+              child: ListView(
+                children: [
+                  LoanHeader(loan: loan),
 
-              const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-              LoanSummaryCard(loan: loan),
+                  LoanSummaryCard(loan: loan),
 
-              const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-              RepaymentProgressCard(
-                borrowed: loan.totalAmount,
-                outstanding: loan.outstandingAmount,
-              ),
+                  RepaymentProgressCard(
+                    borrowed: loan.totalAmount,
+                    outstanding: loan.outstandingAmount,
+                  ),
 
-              const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-              // Existing Pay EMI button
-              const SizedBox(height: 20),
-
-              // PaymentHistoryCard(payments: payments),
-              const SizedBox(height: 16),
-
-              const SizedBox(height: 24),
-
-              SizedBox(
-                height: 50,
-                child: FilledButton.icon(
-                  icon: const Icon(Icons.payments),
-                  label: const Text("Pay EMI"),
-                  onPressed: loan.isClosed
-                      ? null
-                      : () async {
-                          final result = await showDialog<Map<String, dynamic>>(
-                            context: context,
-                            builder: (_) => AddPaymentDialog(
-                              defaultAmount: loan.emiAmount,
-                              outstandingAmount: loan.outstandingAmount,
-                            ),
+                  ReminderSettingsCard(
+                    loan: loan,
+                    onSave:
+                        ({
+                          required enabled,
+                          required daysBefore,
+                          required time,
+                        }) async {
+                          final updatedLoan = loan.copyWith(
+                            reminderEnabled: enabled,
+                            reminderDaysBefore: daysBefore,
+                            reminderTime: time,
                           );
+                          await repository.updateLoan(updatedLoan);
 
-                          if (result == null) return;
-
-                          await ref
-                              .read(paymentControllerProvider)
-                              .payEmi(
-                                loanId: loan.id,
-                                amount: result["amount"],
-                                paymentDate: result["date"],
-                                paymentType: result["type"],
-                                remarks: result["remarks"],
-                              );
-
-                          ref.invalidate(loanDetailsProvider(loan.id));
-                          ref.invalidate(loanListProvider);
-                          ref.invalidate(dashboardStatsProvider);
-                          ref.invalidate(paymentHistoryProvider(loan.id));
-
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Payment recorded successfully"),
-                              ),
+                          final notifications = ref.read(
+                            notificationRepositoryProvider,
+                          );
+                          await notifications.cancelLoanReminder(loan.id);
+                          if (enabled && !loan.isClosed) {
+                            await notifications.scheduleLoanReminder(
+                              updatedLoan,
                             );
                           }
+                          ref.invalidate(loanDetailsProvider(loan.id));
                         },
-                ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Existing Pay EMI button
+                  const SizedBox(height: 20),
+
+                  // PaymentHistoryCard(payments: payments),
+                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                    height: 50,
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.payments),
+                      label: const Text("Record a payment"),
+                      onPressed: loan.isClosed
+                          ? null
+                          : () async {
+                              final result =
+                                  await showDialog<Map<String, dynamic>>(
+                                    context: context,
+                                    builder: (_) => AddPaymentDialog(
+                                      defaultAmount: loan.emiAmount,
+                                      outstandingAmount: loan.outstandingAmount,
+                                    ),
+                                  );
+
+                              if (result == null) return;
+
+                              try {
+                                await ref
+                                    .read(paymentControllerProvider)
+                                    .payEmi(
+                                      loanId: loan.id,
+                                      amount: result["amount"],
+                                      paymentDate: result["date"],
+                                      paymentType: result["type"],
+                                      remarks: result["remarks"],
+                                    );
+                              } on ArgumentError catch (error) {
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(error.message.toString()),
+                                  ),
+                                );
+                                return;
+                              } on StateError catch (error) {
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(error.message)),
+                                );
+                                return;
+                              }
+
+                              ref.invalidate(loanDetailsProvider(loan.id));
+                              ref.invalidate(loanListProvider);
+                              ref.invalidate(dashboardStatsProvider);
+                              ref.invalidate(paymentHistoryProvider(loan.id));
+
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Payment recorded successfully",
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  payments.when(
+                    loading: () => const Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(30),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
+
+                    error: (e, _) => Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text(e.toString()),
+                      ),
+                    ),
+
+                    data: (items) => PaymentHistoryCard(
+                      payments: items,
+                      onDelete: (payment) async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (dialogContext) => AlertDialog(
+                            title: const Text('Delete payment?'),
+                            content: const Text(
+                              'The payment will be removed and its amount will be '
+                              'restored to the outstanding loan balance.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(dialogContext, false),
+                                child: const Text('Cancel'),
+                              ),
+                              FilledButton(
+                                onPressed: () =>
+                                    Navigator.pop(dialogContext, true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirmed != true) return;
+
+                        await ref
+                            .read(paymentControllerProvider)
+                            .deletePayment(payment.id);
+                        ref.invalidate(loanDetailsProvider(loan.id));
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  payments.when(
+                    loading: () => const Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
+                    error: (e, _) => Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text("Unable to load EMI timeline"),
+                      ),
+                    ),
+                    data: (paymentList) =>
+                        EmiTimelineCard(loan: loan, payments: paymentList),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 30),
-
-              payments.when(
-                loading: () => const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(30),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-
-                error: (e, _) => Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Text(e.toString()),
-                  ),
-                ),
-
-                data: (items) => PaymentHistoryCard(payments: items),
-              ),
-              const SizedBox(height: 20),
-
-              payments.when(
-                loading: () => const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-                error: (e, _) => Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Text("Unable to load EMI timeline"),
-                  ),
-                ),
-                data: (paymentList) =>
-                    EmiTimelineCard(loan: loan, payments: paymentList),
-              ),
-            ],
+            ),
           ),
         );
       },

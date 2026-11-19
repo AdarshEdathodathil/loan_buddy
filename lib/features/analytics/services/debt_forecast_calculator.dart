@@ -12,8 +12,7 @@ class DebtForecastCalculator {
       );
     }
 
-    final remainingEmis =
-        (data.totalOutstanding / data.monthlyEmi).ceil();
+    final remainingEmis = (data.totalOutstanding / data.monthlyEmi).ceil();
 
     final estimatedDebtFreeDate = DateTime(
       DateTime.now().year,

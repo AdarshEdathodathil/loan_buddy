@@ -1,10 +1,6 @@
 import 'package:loan_buddy/core/database/app_database.dart';
 
-enum RepaymentPriority {
-  low,
-  medium,
-  high,
-}
+enum RepaymentPriority { low, medium, high }
 
 class RepaymentAdvice {
   final Loan recommendedLoan;

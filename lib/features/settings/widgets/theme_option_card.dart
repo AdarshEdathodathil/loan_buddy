@@ -41,29 +41,18 @@ class ThemeOptionCard extends StatelessWidget {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundColor:
-                      theme.colorScheme.primaryContainer,
-                  child: Icon(
-                    icon,
-                    color: theme.colorScheme.primary,
-                  ),
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                  child: Icon(icon, color: theme.colorScheme.primary),
                 ),
                 const SizedBox(width: 16),
 
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.titleMedium,
-                      ),
+                      Text(title, style: theme.textTheme.titleMedium),
                       const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: theme.textTheme.bodySmall,
-                      ),
+                      Text(subtitle, style: theme.textTheme.bodySmall),
                     ],
                   ),
                 ),
@@ -76,10 +65,7 @@ class ThemeOptionCard extends StatelessWidget {
                           key: const ValueKey(true),
                           color: theme.colorScheme.primary,
                         )
-                      : const SizedBox(
-                          key: ValueKey(false),
-                          width: 24,
-                        ),
+                      : const SizedBox(key: ValueKey(false), width: 24),
                 ),
               ],
             ),

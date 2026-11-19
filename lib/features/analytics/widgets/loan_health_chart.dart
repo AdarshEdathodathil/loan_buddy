@@ -5,10 +5,7 @@ import 'package:loan_buddy/features/analytics/models/analytics_data.dart';
 class LoanHealthChart extends StatelessWidget {
   final AnalyticsData data;
 
-  const LoanHealthChart({
-    super.key,
-    required this.data,
-  });
+  const LoanHealthChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -16,18 +13,13 @@ class LoanHealthChart extends StatelessWidget {
     final outstanding = data.totalOutstanding;
 
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Loan Health",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text("Loan Health", style: Theme.of(context).textTheme.titleLarge),
 
             const SizedBox(height: 20),
 
@@ -70,14 +62,8 @@ class LoanHealthChart extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: const [
-                _Legend(
-                  color: Colors.deepPurple,
-                  text: "Outstanding",
-                ),
-                _Legend(
-                  color: Colors.green,
-                  text: "Paid",
-                ),
+                _Legend(color: Colors.deepPurple, text: "Outstanding"),
+                _Legend(color: Colors.green, text: "Paid"),
               ],
             ),
           ],
@@ -91,19 +77,13 @@ class _Legend extends StatelessWidget {
   final Color color;
   final String text;
 
-  const _Legend({
-    required this.color,
-    required this.text,
-  });
+  const _Legend({required this.color, required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 6,
-          backgroundColor: color,
-        ),
+        CircleAvatar(radius: 6, backgroundColor: color),
         const SizedBox(width: 6),
         Text(text),
       ],

@@ -4,10 +4,7 @@ import 'package:loan_buddy/features/analytics/models/repayment_advice.dart';
 class SmartRepaymentAdvisorCard extends StatelessWidget {
   final RepaymentAdvice advice;
 
-  const SmartRepaymentAdvisorCard({
-    super.key,
-    required this.advice,
-  });
+  const SmartRepaymentAdvisorCard({super.key, required this.advice});
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +17,7 @@ class SmartRepaymentAdvisorCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(
-                  Icons.lightbulb,
-                  color: Colors.amber,
-                ),
+                const Icon(Icons.lightbulb, color: Colors.amber),
                 const SizedBox(width: 8),
                 Text(
                   'Smart Repayment Advisor',
@@ -36,19 +30,14 @@ class SmartRepaymentAdvisorCard extends StatelessWidget {
 
             Text(
               advice.title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 12),
 
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const CircleAvatar(
-                child: Icon(Icons.account_balance),
-              ),
+              leading: const CircleAvatar(child: Icon(Icons.account_balance)),
               title: Text(advice.recommendedLoan.name),
               subtitle: Text(advice.recommendedLoan.lender),
             ),
@@ -87,18 +76,13 @@ class SmartRepaymentAdvisorCard extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            Text(
-              advice.reason,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text(advice.reason, style: Theme.of(context).textTheme.bodyMedium),
 
             const SizedBox(height: 20),
 
             const Text(
               'Why this loan?',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 10),
@@ -115,9 +99,7 @@ class SmartRepaymentAdvisorCard extends StatelessWidget {
                       size: 18,
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(item),
-                    ),
+                    Expanded(child: Text(item)),
                   ],
                 ),
               ),
@@ -129,9 +111,7 @@ class SmartRepaymentAdvisorCard extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Chip(
                 avatar: const Icon(Icons.priority_high),
-                label: Text(
-                  advice.priority.name.toUpperCase(),
-                ),
+                label: Text(advice.priority.name.toUpperCase()),
               ),
             ),
           ],

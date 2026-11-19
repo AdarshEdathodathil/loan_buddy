@@ -25,9 +25,7 @@ class AmortizationEngine {
       double principal = emi - interest;
 
       if (principal <= 0) {
-        throw Exception(
-          'EMI is too low to repay the loan.',
-        );
+        throw Exception('EMI is too low to repay the loan.');
       }
 
       if (principal > balance) {

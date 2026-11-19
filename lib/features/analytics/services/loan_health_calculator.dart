@@ -29,10 +29,6 @@ class LoanHealthCalculator {
       description = 'Your repayment progress is currently low.';
     }
 
-    return LoanHealth(
-      score: score,
-      title: title,
-      description: description,
-    );
+    return LoanHealth(score: score, title: title, description: description);
   }
 }

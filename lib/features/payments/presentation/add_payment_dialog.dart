@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loan_buddy/core/constants/payment_type.dart';
 import 'package:loan_buddy/core/currency/currency_provider.dart';
 import 'package:loan_buddy/core/utils/currency_formatter.dart';
+import 'package:intl/intl.dart';
 
 class AddPaymentDialog extends ConsumerStatefulWidget {
   final double defaultAmount;
@@ -26,6 +27,16 @@ class _AddPaymentDialogState extends ConsumerState<AddPaymentDialog> {
   String paymentType = PaymentType.emi;
 
   final remarksController = TextEditingController();
+
+  Future<void> _pickPaymentDate() async {
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: paymentDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (selected != null) setState(() => paymentDate = selected);
+  }
 
   @override
   void initState() {
@@ -103,12 +114,39 @@ class _AddPaymentDialogState extends ConsumerState<AddPaymentDialog> {
               },
             ),
             const SizedBox(height: 16),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+              leading: const Icon(Icons.event_outlined),
+              title: const Text('Payment date'),
+              subtitle: Text(DateFormat('d MMM yyyy').format(paymentDate)),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: _pickPaymentDate,
+            ),
+            const SizedBox(height: 12),
             TextField(
               controller: remarksController,
               decoration: const InputDecoration(
                 labelText: "Remarks (Optional)",
+                prefixIcon: Icon(Icons.notes_rounded),
               ),
             ),
+            if (paymentType != PaymentType.foreclosure) ...[
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  'The outstanding balance updates immediately after this payment is saved.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -124,6 +162,18 @@ class _AddPaymentDialogState extends ConsumerState<AddPaymentDialog> {
             if (amount == null || amount <= 0) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Enter a valid payment amount.")),
+              );
+              return;
+            }
+
+            if (paymentType != PaymentType.foreclosure &&
+                amount > widget.outstandingAmount) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    "Payment cannot exceed the outstanding balance.",
+                  ),
+                ),
               );
               return;
             }

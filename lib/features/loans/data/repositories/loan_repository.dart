@@ -3,9 +3,6 @@ import 'package:loan_buddy/core/database/app_database.dart';
 import 'package:loan_buddy/core/services/notification_service.dart';
 
 class LoanRepository {
-
-  
-
   final AppDatabase database;
 
   LoanRepository(this.database);

@@ -20,15 +20,11 @@ class RepaymentProgressCard extends ConsumerWidget {
 
     final paid = borrowed - outstanding;
 
-    final progress = borrowed == 0
-        ? 0.0
-        : (paid / borrowed).clamp(0.0, 1.0);
+    final progress = borrowed == 0 ? 0.0 : (paid / borrowed).clamp(0.0, 1.0);
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -36,19 +32,16 @@ class RepaymentProgressCard extends ConsumerWidget {
           children: [
             Text(
               "Repayment Progress",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
 
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 12,
-              ),
+              child: LinearProgressIndicator(value: progress, minHeight: 12),
             ),
 
             const SizedBox(height: 20),
@@ -70,10 +63,7 @@ class RepaymentProgressCard extends ConsumerWidget {
                 Expanded(
                   child: _AmountCard(
                     title: "Paid",
-                    value: CurrencyFormatter.format(
-                      paid,
-                      currency,
-                    ),
+                    value: CurrencyFormatter.format(paid, currency),
                     icon: Icons.check_circle_outline,
                   ),
                 ),
@@ -83,10 +73,7 @@ class RepaymentProgressCard extends ConsumerWidget {
                 Expanded(
                   child: _AmountCard(
                     title: "Remaining",
-                    value: CurrencyFormatter.format(
-                      outstanding,
-                      currency,
-                    ),
+                    value: CurrencyFormatter.format(outstanding, currency),
                     icon: Icons.account_balance_wallet_outlined,
                   ),
                 ),
@@ -128,12 +115,7 @@ class _AmountCard extends StatelessWidget {
 
           const SizedBox(height: 4),
 
-          Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );

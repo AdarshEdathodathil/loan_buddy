@@ -3,8 +3,7 @@ import 'package:loan_buddy/features/analytics/providers/repayment_strategy_provi
 import 'package:loan_buddy/features/analytics/services/repayment_strategy.dart';
 import 'package:loan_buddy/features/analytics/services/repayment_strategy_factory.dart';
 
-final repaymentStrategyServiceProvider =
-    Provider<RepaymentStrategy>((ref) {
+final repaymentStrategyServiceProvider = Provider<RepaymentStrategy>((ref) {
   final type = ref.watch(repaymentStrategyProvider);
 
   return RepaymentStrategyFactory.get(type);

@@ -36,11 +36,5 @@ class SupportedCurrencies {
     locale: 'ar_AE',
   );
 
-  static const supported = [
-    inr,
-    usd,
-    eur,
-    gbp,
-    aed,
-  ];
+  static const supported = [inr, usd, eur, gbp, aed];
 }

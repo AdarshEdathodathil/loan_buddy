@@ -4,8 +4,5 @@ class LoanScore {
   final Loan loan;
   final double score;
 
-  const LoanScore({
-    required this.loan,
-    required this.score,
-  });
+  const LoanScore({required this.loan, required this.score});
 }

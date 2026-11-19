@@ -5,9 +5,5 @@ class PaymentType {
   static const partPayment = 'Part Payment';
   static const foreclosure = 'Loan Foreclosure';
 
-  static const values = [
-    emi,
-    partPayment,
-    foreclosure,
-  ];
+  static const values = [emi, partPayment, foreclosure];
 }

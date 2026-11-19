@@ -2,71 +2,66 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DashboardHeader extends StatelessWidget {
-  const DashboardHeader({super.key});
+  const DashboardHeader({super.key, required this.onAddLoan});
+
+  final VoidCallback onAddLoan;
 
   String _greeting() {
     final hour = DateTime.now().hour;
-
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    final today = DateFormat("EEEE, dd MMM yyyy").format(DateTime.now());
+    final compact = MediaQuery.sizeOf(context).width < 520;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            Icons.handshake_rounded,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "${_greeting()} 👋",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-
-              const SizedBox(height: 6),
-
-              Text(
-                "Welcome back",
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 4),
-
-              Text(
-                today,
+                _greeting(),
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey.shade600,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text('Loan Buddy', style: theme.textTheme.headlineSmall),
+              const SizedBox(height: 3),
+              Text(
+                DateFormat('EEEE, d MMMM').format(DateTime.now()),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
           ),
         ),
-
-        Container(
-          height: 52,
-          width: 52,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            shape: BoxShape.circle,
+        if (!compact)
+          FilledButton.icon(
+            onPressed: onAddLoan,
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('Add loan'),
           ),
-          child: Icon(
-            Icons.account_circle_rounded,
-            size: 32,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
       ],
     );
   }

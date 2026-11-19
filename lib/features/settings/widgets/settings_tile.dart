@@ -18,14 +18,20 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon),
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(13),
+        ),
+        child: Icon(icon, size: 21, color: theme.colorScheme.primary),
+      ),
       title: Text(title),
       subtitle: subtitle == null ? null : Text(subtitle!),
-      trailing: trailing ??
-          const Icon(
-            Icons.chevron_right,
-          ),
+      trailing: trailing ?? const Icon(Icons.chevron_right_rounded),
       onTap: onTap,
     );
   }

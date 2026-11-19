@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loan_buddy/core/theme/theme_storage_service.dart';
 
-final themeProvider =
-    NotifierProvider<ThemeNotifier, ThemeMode>(ThemeNotifier.new);
+final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(
+  ThemeNotifier.new,
+);
 
 class ThemeNotifier extends Notifier<ThemeMode> {
   final ThemeStorageService _storage = ThemeStorageService();

@@ -2,14 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loan_buddy/core/currency/currency_provider.dart';
 import 'package:loan_buddy/core/utils/currency_formatter.dart';
-import 'package:loan_buddy/shared/widgets/app_card.dart';
-import 'package:loan_buddy/shared/widgets/loan_progress_bar.dart';
 
 class OutstandingCard extends ConsumerWidget {
-  final double borrowed;
-  final double outstanding;
-  final double paid;
-
   const OutstandingCard({
     super.key,
     required this.borrowed,
@@ -17,190 +11,167 @@ class OutstandingCard extends ConsumerWidget {
     required this.paid,
   });
 
+  final double borrowed;
+  final double outstanding;
+  final double paid;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final currency = ref.watch(currencyProvider);
+    final progress = borrowed == 0 ? 0.0 : (paid / borrowed).clamp(0.0, 1.0);
+    final percentage = (progress * 100).round();
 
-    final progress =
-        borrowed == 0 ? 0.0 : (paid / borrowed).clamp(0.0, 1.0);
-
-    final percentage = (progress * 100).toStringAsFixed(0);
-
-    return AppCard(
-      color: theme.colorScheme.primaryContainer,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            children: [
-              Icon(
-                Icons.account_balance_wallet_outlined,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  "Outstanding Balance",
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: .12),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Text(
-                  "$percentage%",
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 18),
-
-          // Outstanding Amount
-          Text(
-            CurrencyFormatter.compact(
-              outstanding,
-              currency,
-            ),
-            style: theme.textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          const SizedBox(height: 6),
-
-          Text(
-            "Current outstanding across all active loans",
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          LoanProgressBar(
-            progress: progress,
-          ),
-
-          const SizedBox(height: 8),
-
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              "$percentage% Repaid",
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          Row(
-            children: [
-              Expanded(
-                child: _InfoCard(
-                  icon: Icons.account_balance_wallet_outlined,
-                  title: "Borrowed",
-                  value: CurrencyFormatter.compact(
-                    borrowed,
-                    currency,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: _InfoCard(
-                  icon: Icons.check_circle_outline,
-                  title: "Paid",
-                  value: CurrencyFormatter.compact(
-                    paid,
-                    currency,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: _InfoCard(
-                  icon: Icons.payments_outlined,
-                  title: "Balance",
-                  value: CurrencyFormatter.compact(
-                    outstanding,
-                    currency,
-                  ),
-                ),
-              ),
-            ],
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            scheme.primary,
+            Color.lerp(scheme.primary, scheme.secondary, .42)!,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.primary.withValues(alpha: .18),
+            blurRadius: 26,
+            offset: const Offset(0, 12),
           ),
         ],
+      ),
+      child: DefaultTextStyle.merge(
+        style: TextStyle(color: scheme.onPrimary),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .14),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.account_balance_wallet_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Total outstanding',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: .9),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .16),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    '$percentage% repaid',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                CurrencyFormatter.format(outstanding, currency),
+                style: theme.textTheme.displaySmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Across all active loans',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: Colors.white.withValues(alpha: .72),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 9,
+                backgroundColor: Colors.white.withValues(alpha: .18),
+                valueColor: const AlwaysStoppedAnimation(Colors.white),
+              ),
+            ),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: _Metric(
+                    label: 'Borrowed',
+                    value: CurrencyFormatter.compact(borrowed, currency),
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 34,
+                  color: Colors.white.withValues(alpha: .2),
+                ),
+                Expanded(
+                  child: _Metric(
+                    label: 'Repaid',
+                    value: CurrencyFormatter.compact(paid, currency),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _InfoCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
+class _Metric extends StatelessWidget {
+  const _Metric({required this.label, required this.value});
 
-  const _InfoCard({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: .55),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(height: 10),
           Text(
-            title,
+            label,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+              color: Colors.white.withValues(alpha: .68),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: theme.textTheme.titleMedium?.copyWith(color: Colors.white),
           ),
         ],
       ),

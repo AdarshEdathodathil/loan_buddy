@@ -15,25 +15,16 @@ class SettingsSection extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 26),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              title.toUpperCase(),
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: Text(title, style: theme.textTheme.titleMedium),
           ),
           const SizedBox(height: 8),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            child: Column(children: children),
-          ),
+          Card(child: Column(children: children)),
         ],
       ),
     );

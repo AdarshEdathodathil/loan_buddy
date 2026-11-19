@@ -5,10 +5,7 @@ import 'package:loan_buddy/features/payoff/services/amortization_engine.dart';
 class DebtPayoffCalculator {
   const DebtPayoffCalculator._();
 
-  static DebtPayoffResult calculate(
-    List<Loan> loans, {
-    double extraEmi = 0,
-  }) {
+  static DebtPayoffResult calculate(List<Loan> loans, {double extraEmi = 0}) {
     final activeLoans = loans.where((loan) => !loan.isClosed);
 
     double remainingPrincipal = 0;
@@ -37,9 +34,7 @@ class DebtPayoffCalculator {
       remainingPrincipal: remainingPrincipal,
       estimatedInterestRemaining: totalInterest,
       remainingMonths: longestSchedule,
-      debtFreeDate: DateTime.now().add(
-        Duration(days: longestSchedule * 30),
-      ),
+      debtFreeDate: DateTime.now().add(Duration(days: longestSchedule * 30)),
     );
   }
 }

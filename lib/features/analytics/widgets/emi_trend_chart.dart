@@ -4,10 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:loan_buddy/features/analytics/models/monthly_emi_data.dart';
 
 class EmiTrendChart extends StatelessWidget {
-  const EmiTrendChart({
-    super.key,
-    required this.data,
-  });
+  const EmiTrendChart({super.key, required this.data});
 
   final List<MonthlyEmiData> data;
 
@@ -17,21 +14,16 @@ class EmiTrendChart extends StatelessWidget {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(20),
-          child: Center(
-            child: Text('No payment history available'),
-          ),
+          child: Center(child: Text('No payment history available')),
         ),
       );
     }
 
-    final maxY =
-        data.map((e) => e.amount).reduce((a, b) => a > b ? a : b);
+    final maxY = data.map((e) => e.amount).reduce((a, b) => a > b ? a : b);
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -43,10 +35,7 @@ class EmiTrendChart extends StatelessWidget {
                 SizedBox(width: 8),
                 Text(
                   "EMI Trend",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -118,10 +107,7 @@ class EmiTrendChart extends StatelessWidget {
                       dotData: const FlDotData(show: true),
                       spots: List.generate(
                         data.length,
-                        (index) => FlSpot(
-                          index.toDouble(),
-                          data[index].amount,
-                        ),
+                        (index) => FlSpot(index.toDouble(), data[index].amount),
                       ),
                     ),
                   ],

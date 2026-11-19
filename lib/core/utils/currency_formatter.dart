@@ -4,10 +4,7 @@ import 'package:loan_buddy/core/currency/app_currency.dart';
 class CurrencyFormatter {
   const CurrencyFormatter._();
 
-  static String format(
-    num value,
-    AppCurrency currency,
-  ) {
+  static String format(num value, AppCurrency currency) {
     return NumberFormat.currency(
       locale: currency.locale,
       symbol: currency.symbol,
@@ -15,10 +12,7 @@ class CurrencyFormatter {
     ).format(value);
   }
 
-  static String compact(
-    num value,
-    AppCurrency currency,
-  ) {
+  static String compact(num value, AppCurrency currency) {
     final abs = value.abs();
 
     // Indian numbering system

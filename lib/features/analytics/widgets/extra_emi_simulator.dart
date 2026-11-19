@@ -9,10 +9,7 @@ import 'package:loan_buddy/features/analytics/services/extra_emi_calculator.dart
 class ExtraEmiSimulator extends ConsumerWidget {
   final AnalyticsData analytics;
 
-  const ExtraEmiSimulator({
-    super.key,
-    required this.analytics,
-  });
+  const ExtraEmiSimulator({super.key, required this.analytics});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,20 +28,14 @@ class ExtraEmiSimulator extends ConsumerWidget {
           children: [
             const Text(
               'Extra EMI Simulator',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
 
             Text(
               'Extra EMI: ${extraEmi.toStringAsFixed(0)}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
 
             Slider(
@@ -63,8 +54,7 @@ class ExtraEmiSimulator extends ConsumerWidget {
               leading: const Icon(Icons.calendar_today),
               title: const Text('Current Debt-Free Date'),
               trailing: Text(
-                DateFormat('MMM yyyy')
-                    .format(result.currentDebtFreeDate),
+                DateFormat('MMM yyyy').format(result.currentDebtFreeDate),
               ),
             ),
 
@@ -72,8 +62,7 @@ class ExtraEmiSimulator extends ConsumerWidget {
               leading: const Icon(Icons.auto_graph),
               title: const Text('New Debt-Free Date'),
               trailing: Text(
-                DateFormat('MMM yyyy')
-                    .format(result.newDebtFreeDate),
+                DateFormat('MMM yyyy').format(result.newDebtFreeDate),
               ),
             ),
 
@@ -82,9 +71,7 @@ class ExtraEmiSimulator extends ConsumerWidget {
               title: const Text('Months Saved'),
               trailing: Text(
                 '${result.monthsSaved}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],

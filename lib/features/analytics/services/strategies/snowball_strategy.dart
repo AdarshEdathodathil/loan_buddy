@@ -6,15 +6,14 @@ import 'package:loan_buddy/features/analytics/services/repayment_strategy.dart';
 class SnowballStrategy implements RepaymentStrategy {
   const SnowballStrategy();
 
- @override
-RepaymentStrategyType get type => RepaymentStrategyType.snowball;
+  @override
+  RepaymentStrategyType get type => RepaymentStrategyType.snowball;
 
   @override
   String get name => 'Snowball';
 
   @override
-  String get description =>
-      'Pay off the smallest outstanding balance first.';
+  String get description => 'Pay off the smallest outstanding balance first.';
 
   @override
   RepaymentAdvice? generate(List<Loan> loans) {

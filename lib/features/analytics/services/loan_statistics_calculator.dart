@@ -46,8 +46,7 @@ class LoanStatisticsCalculator {
       maxInterestRate: maxInterest == 0 ? 1 : maxInterest,
       maxOutstandingAmount: maxOutstanding == 0 ? 1 : maxOutstanding,
       maxEmiAmount: maxEmi == 0 ? 1 : maxEmi,
-      maxRemainingMonths:
-          maxRemainingMonths <= 0 ? 1 : maxRemainingMonths,
+      maxRemainingMonths: maxRemainingMonths <= 0 ? 1 : maxRemainingMonths,
     );
   }
 }

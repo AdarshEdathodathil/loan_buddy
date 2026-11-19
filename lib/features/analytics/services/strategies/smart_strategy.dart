@@ -7,8 +7,8 @@ import 'package:loan_buddy/features/analytics/services/smart_repayment_advisor.d
 class SmartStrategy implements RepaymentStrategy {
   const SmartStrategy();
 
- @override
-RepaymentStrategyType get type => RepaymentStrategyType.smart;
+  @override
+  RepaymentStrategyType get type => RepaymentStrategyType.smart;
 
   @override
   String get name => 'Smart';

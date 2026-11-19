@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loan_buddy/features/loans/providers/loan_provider.dart';
 import 'package:loan_buddy/features/payments/providers/payment_provider.dart';
+import 'package:loan_buddy/features/notifications/providers/notification_provider.dart';
+import 'package:loan_buddy/features/loans/providers/loan_provider.dart';
 
 final paymentControllerProvider = Provider<PaymentController>((ref) {
   return PaymentController(ref);
@@ -20,9 +21,7 @@ class PaymentController {
   }) async {
     final paymentRepository = ref.read(paymentRepositoryProvider);
 
-    final loanRepository = ref.read(loanRepositoryProvider);
-
-    await paymentRepository.addPayment(
+    final wasClosed = await paymentRepository.makePayment(
       loanId: loanId,
       amount: amount,
       paymentDate: paymentDate,
@@ -30,9 +29,20 @@ class PaymentController {
       remarks: remarks,
     );
 
-    await loanRepository.updateOutstandingBalance(
-      loanId: loanId,
-      paymentAmount: amount,
-    );
+    if (wasClosed) {
+      await ref.read(notificationRepositoryProvider).cancelLoanReminder(loanId);
+    }
+  }
+
+  Future<void> deletePayment(int paymentId) async {
+    final loanId = await ref
+        .read(paymentRepositoryProvider)
+        .deletePayment(paymentId);
+    if (loanId == null) return;
+
+    final loan = await ref.read(loanRepositoryProvider).getLoan(loanId);
+    if (loan != null && loan.reminderEnabled && !loan.isClosed) {
+      await ref.read(notificationRepositoryProvider).scheduleLoanReminder(loan);
+    }
   }
 }

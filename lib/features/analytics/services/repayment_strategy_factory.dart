@@ -9,9 +9,7 @@ import 'package:loan_buddy/features/analytics/services/strategies/snowball_strat
 class RepaymentStrategyFactory {
   const RepaymentStrategyFactory._();
 
-  static RepaymentStrategy get(
-    RepaymentStrategyType type,
-  ) {
+  static RepaymentStrategy get(RepaymentStrategyType type) {
     switch (type) {
       case RepaymentStrategyType.smart:
         return const SmartStrategy();

@@ -3,8 +3,7 @@ import 'package:loan_buddy/core/currency/app_currency.dart';
 import 'package:loan_buddy/core/currency/currency_storage_service.dart';
 import 'package:loan_buddy/core/currency/supported_currencies.dart';
 
-final currencyProvider =
-    NotifierProvider<CurrencyNotifier, AppCurrency>(
+final currencyProvider = NotifierProvider<CurrencyNotifier, AppCurrency>(
   CurrencyNotifier.new,
 );
 

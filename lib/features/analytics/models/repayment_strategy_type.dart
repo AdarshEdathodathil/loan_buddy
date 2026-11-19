@@ -1,7 +1,7 @@
 enum RepaymentStrategyType {
   smart,
   snowball,
- avalanche,
- lowestEmi,
- earliestFinish,
+  avalanche,
+  lowestEmi,
+  earliestFinish,
 }

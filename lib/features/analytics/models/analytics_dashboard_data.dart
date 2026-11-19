@@ -5,8 +5,5 @@ class AnalyticsDashboardData {
   final AnalyticsData analytics;
   final RepaymentAdvice? repaymentAdvice;
 
-  const AnalyticsDashboardData({
-    required this.analytics,
-    this.repaymentAdvice,
-  });
+  const AnalyticsDashboardData({required this.analytics, this.repaymentAdvice});
 }

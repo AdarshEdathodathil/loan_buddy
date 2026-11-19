@@ -49,13 +49,16 @@ class Loans extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  AppDatabase.forTesting(super.e);
+
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (migrator) async {
       await migrator.createAll();
+      await _ensureIntegrityObjects();
     },
     onUpgrade: (migrator, from, to) async {
       if (from < 5) {
@@ -67,8 +70,53 @@ class AppDatabase extends _$AppDatabase {
         await migrator.addColumn(payments, payments.emiForMonth);
         await migrator.addColumn(payments, payments.paymentType);
       }
+
+      if (from < 8) {
+        await _ensureIntegrityObjects();
+      }
     },
   );
+
+  Future<void> _ensureIntegrityObjects() async {
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS payments_loan_id_idx '
+      'ON payments (loan_id)',
+    );
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS payments_payment_date_idx '
+      'ON payments (payment_date)',
+    );
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS loans_status_due_idx '
+      'ON loans (is_closed, due_day)',
+    );
+    await customStatement('''
+      CREATE TRIGGER IF NOT EXISTS payments_require_loan_insert
+      BEFORE INSERT ON payments
+      FOR EACH ROW
+      WHEN NOT EXISTS (SELECT 1 FROM loans WHERE id = NEW.loan_id)
+      BEGIN
+        SELECT RAISE(ABORT, 'Payment requires an existing loan');
+      END
+    ''');
+    await customStatement('''
+      CREATE TRIGGER IF NOT EXISTS payments_require_positive_amount_insert
+      BEFORE INSERT ON payments
+      FOR EACH ROW
+      WHEN NEW.amount <= 0
+      BEGIN
+        SELECT RAISE(ABORT, 'Payment amount must be positive');
+      END
+    ''');
+    await customStatement('''
+      CREATE TRIGGER IF NOT EXISTS loans_delete_payment_history
+      AFTER DELETE ON loans
+      FOR EACH ROW
+      BEGIN
+        DELETE FROM payments WHERE loan_id = OLD.id;
+      END
+    ''');
+  }
 }
 
 LazyDatabase _openConnection() {

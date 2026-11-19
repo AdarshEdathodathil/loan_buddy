@@ -8,21 +8,17 @@ class LoanScoreCalculator {
     required LoanStatistics statistics,
   }) {
     // Normalize each factor between 0 and 1
-    final interestScore =
-        loan.interestRate / statistics.maxInterestRate;
+    final interestScore = loan.interestRate / statistics.maxInterestRate;
 
     // Smaller outstanding balance = higher score
     final outstandingScore =
         1 - (loan.outstandingAmount / statistics.maxOutstandingAmount);
 
-    final emiScore =
-        loan.emiAmount / statistics.maxEmiAmount;
+    final emiScore = loan.emiAmount / statistics.maxEmiAmount;
 
-    final remainingMonths =
-        loan.endDate.difference(DateTime.now()).inDays / 30;
+    final remainingMonths = loan.endDate.difference(DateTime.now()).inDays / 30;
 
-    final tenureScore =
-        remainingMonths / statistics.maxRemainingMonths;
+    final tenureScore = remainingMonths / statistics.maxRemainingMonths;
 
     // Weighted score
     final totalScore =
@@ -31,9 +27,6 @@ class LoanScoreCalculator {
         (emiScore * 20) +
         (tenureScore * 15);
 
-    return LoanScore(
-      loan: loan,
-      score: totalScore,
-    );
+    return LoanScore(loan: loan, score: totalScore);
   }
 }
