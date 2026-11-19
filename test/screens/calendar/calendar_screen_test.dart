@@ -11,6 +11,7 @@ void main() {
   testWidgets('calendar marks EMI dates and lists the selected month loans', (
     tester,
   ) async {
+    final now = DateTime.now();
     final database = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
     await database
@@ -26,7 +27,7 @@ void main() {
             emiAmount: 8000,
             dueDay: 15,
             startDate: DateTime(2020),
-            endDate: DateTime(2100),
+            endDate: DateTime(now.year, now.month),
             reminderEnabled: const Value(false),
           ),
         );
@@ -42,6 +43,14 @@ void main() {
 
     expect(find.text('Mon'), findsOneWidget);
     expect(find.text('Sun'), findsOneWidget);
+    expect(find.text('EMI due date'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Next month'));
+    await tester.pump();
+    expect(find.text('EMI due date'), findsNothing);
+
+    await tester.tap(find.byTooltip('Previous month'));
+    await tester.pump();
     expect(find.text('EMI due date'), findsOneWidget);
 
     await tester.drag(find.byType(ListView), const Offset(0, -600));

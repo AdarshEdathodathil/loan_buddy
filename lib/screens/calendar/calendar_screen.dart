@@ -136,6 +136,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   List<_ScheduledPayment> _paymentsForMonth(List<Loan> loans) {
+    final selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month);
     final lastDay = DateTime(
       _selectedMonth.year,
       _selectedMonth.month + 1,
@@ -143,13 +144,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     ).day;
     final result =
         loans
-            .where(
-              (loan) =>
-                  !loan.isClosed &&
-                  !DateTime(_selectedMonth.year, _selectedMonth.month).isBefore(
-                    DateTime(loan.startDate.year, loan.startDate.month),
-                  ),
-            )
+            .where((loan) {
+              final startMonth = DateTime(
+                loan.startDate.year,
+                loan.startDate.month,
+              );
+              final endMonth = DateTime(loan.endDate.year, loan.endDate.month);
+              return !loan.isClosed &&
+                  !selectedMonth.isBefore(startMonth) &&
+                  !selectedMonth.isAfter(endMonth);
+            })
             .map(
               (loan) => _ScheduledPayment(
                 loan,
